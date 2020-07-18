@@ -1,5 +1,7 @@
 package transaction;
 
+import transaction.rm.ResourceManager;
+
 import java.rmi.*;
 
 /** 
@@ -42,7 +44,7 @@ public class TransactionManagerImpl
     public TransactionManagerImpl() throws RemoteException {
     }
 
-    public boolean dieNow() 
+    public boolean dieNow()
 	throws RemoteException {
 	System.exit(1);
 	return true; // We won't ever get here since we exited above;

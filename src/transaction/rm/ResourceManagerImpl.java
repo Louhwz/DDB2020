@@ -1,4 +1,4 @@
-package transaction;
+package transaction.rm;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +19,7 @@ import java.util.Set;
 
 import lockmgr.DeadlockException;
 import lockmgr.LockManager;
+import transaction.*;
 
 /**
  * Resource Manager for the Distributed Travel Reservation System.

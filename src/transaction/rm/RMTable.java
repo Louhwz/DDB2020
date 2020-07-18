@@ -4,7 +4,7 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package transaction;
+package transaction.rm;
 
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -14,6 +14,7 @@ import java.util.Set;
 
 import lockmgr.DeadlockException;
 import lockmgr.LockManager;
+import transaction.ResourceItem;
 
 /**
  * @author RAdmin

@@ -11,8 +11,7 @@ import java.io.Serializable;
 /**
  * @author RAdmin
  * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
+ * 预订表
  */
 public class Reservation implements ResourceItem, Serializable {
 	public static final String INDEX_CUSTNAME = "custName";

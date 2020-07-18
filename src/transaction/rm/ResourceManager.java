@@ -1,4 +1,4 @@
-package transaction;
+package transaction.rm;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.Set;
 
 import lockmgr.DeadlockException;
+import transaction.InvalidIndexException;
+import transaction.InvalidTransactionException;
+import transaction.ResourceItem;
 
 /**
  * Interface for the Resource Manager of the Distributed Travel Reservation

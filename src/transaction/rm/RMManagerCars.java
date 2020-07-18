@@ -4,7 +4,7 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package transaction;
+package transaction.rm;
 
 import java.io.FileInputStream;
 import java.rmi.RemoteException;
@@ -14,31 +14,29 @@ import java.util.Properties;
 
 /**
  * @author Administrator
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * TODO To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Style - Code Templates
  */
-public class RMManagerFlights {
+public class RMManagerCars {
 	static Registry _rmiRegistry = null;
 
 	public static void main(String[] args) {
-		String rmiName = ResourceManager.RMINameFlights;
-		
-        Properties prop = new Properties();
-        try
-        {
-            prop.load(new FileInputStream("conf/ddb.conf"));
-        }
-        catch (Exception e1)
-        {
-            e1.printStackTrace();
-            return;
-        }
-        
-		String rmiPort = prop.getProperty("rm." + rmiName + ".port");
-		
+		String rmiName = ResourceManager.RMINameCars;
+
+		Properties prop = new Properties();
 		try {
-			_rmiRegistry = LocateRegistry.createRegistry(Integer.parseInt(rmiPort));
+			prop.load(new FileInputStream("conf/ddb.conf"));
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return;
+		}
+
+		String rmiPort = prop.getProperty("rm." + rmiName + ".port");
+
+		try {
+			_rmiRegistry = LocateRegistry.createRegistry(Integer
+					.parseInt(rmiPort));
 		} catch (RemoteException e2) {
 			e2.printStackTrace();
 			return;
@@ -49,8 +47,9 @@ public class RMManagerFlights {
 			System.exit(1);
 		}
 
+		ResourceManagerImpl obj = null;
 		try {
-			ResourceManagerImpl obj = new ResourceManagerImpl(rmiName);
+			obj = new ResourceManagerImpl(rmiName);
 			_rmiRegistry.bind(rmiName, obj);
 			System.out.println(rmiName + " bound");
 		} catch (Exception e) {

@@ -4,7 +4,7 @@
  * TODO To change the template for this generated file go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-package transaction;
+package transaction.rm;
 
 import java.io.FileInputStream;
 import java.rmi.RemoteException;
@@ -18,11 +18,11 @@ import java.util.Properties;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class RMManagerCustomers {
+public class RMManagerFlights {
 	static Registry _rmiRegistry = null;
 
 	public static void main(String[] args) {
-		String rmiName = ResourceManager.RMINameCustomers;
+		String rmiName = ResourceManager.RMINameFlights;
 		
         Properties prop = new Properties();
         try
@@ -34,7 +34,7 @@ public class RMManagerCustomers {
             e1.printStackTrace();
             return;
         }
-
+        
 		String rmiPort = prop.getProperty("rm." + rmiName + ".port");
 		
 		try {
