@@ -12,22 +12,22 @@ import java.io.Serializable;
 
 /**
  * @author RAdmin
- * 
+ * <p>
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
 public interface ResourceItem extends Cloneable, Serializable {
-	public String[] getColumnNames();
+    String[] getColumnNames();
 
-	public String[] getColumnValues();
+    String[] getColumnValues();
 
-	public Object getIndex(String indexName) throws InvalidIndexException;
+    Object getIndex(String indexName) throws InvalidIndexException;
 
-	public Object getKey();
+    Object getKey();
 
-	public boolean isDeleted();
+    boolean isDeleted();
 
-	public void delete();
+    void delete();
 
-	public Object clone();
+    Object clone();
 }
