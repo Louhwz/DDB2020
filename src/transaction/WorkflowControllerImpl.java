@@ -1,10 +1,13 @@
 package transaction;
 
+import transaction.exception.InvalidTransactionException;
+import transaction.exception.TransactionAbortedException;
 import transaction.rm.ResourceManager;
 
+import java.io.FileInputStream;
 import java.rmi.Naming;
-import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 /**
  * Workflow Controller for the Distributed Travel Reservation System.
@@ -18,7 +21,7 @@ public class WorkflowControllerImpl
         extends java.rmi.server.UnicastRemoteObject
         implements WorkflowController {
 
-    protected int flightcounter, flightprice, carscounter, carsprice, roomscounter, roomsprice;
+    protected int flightCounter, flightPrice, carsCounter, carsPrice, roomsCounter, roomsPrice;
     protected int xidCounter;
 
     protected ResourceManager rmFlights = null;
@@ -49,13 +52,13 @@ public class WorkflowControllerImpl
 
 
     public WorkflowControllerImpl() throws RemoteException {
-        flightcounter = 0;
-        flightprice = 0;
-        carscounter = 0;
-        carsprice = 0;
-        roomscounter = 0;
-        roomsprice = 0;
-        flightprice = 0;
+        flightCounter = 0;
+        flightPrice = 0;
+        carsCounter = 0;
+        carsPrice = 0;
+        roomsCounter = 0;
+        roomsPrice = 0;
+        flightPrice = 0;
 
         xidCounter = 1;
 
@@ -91,8 +94,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        flightcounter += numSeats;
-        flightprice = price;
+        flightCounter += numSeats;
+        flightPrice = price;
         return true;
     }
 
@@ -100,8 +103,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        flightcounter = 0;
-        flightprice = 0;
+        flightCounter = 0;
+        flightPrice = 0;
         return true;
     }
 
@@ -109,8 +112,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        roomscounter += numRooms;
-        roomsprice = price;
+        roomsCounter += numRooms;
+        roomsPrice = price;
         return true;
     }
 
@@ -118,8 +121,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        roomscounter = 0;
-        roomsprice = 0;
+        roomsCounter = 0;
+        roomsPrice = 0;
         return true;
     }
 
@@ -127,8 +130,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        carscounter += numCars;
-        carsprice = price;
+        carsCounter += numCars;
+        carsPrice = price;
         return true;
     }
 
@@ -136,8 +139,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        carscounter = 0;
-        carsprice = 0;
+        carsCounter = 0;
+        carsPrice = 0;
         return true;
     }
 
@@ -161,42 +164,42 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return flightcounter;
+        return flightCounter;
     }
 
     public int queryFlightPrice(int xid, String flightNum)
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return flightprice;
+        return flightPrice;
     }
 
     public int queryRooms(int xid, String location)
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return roomscounter;
+        return roomsCounter;
     }
 
     public int queryRoomsPrice(int xid, String location)
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return roomsprice;
+        return roomsPrice;
     }
 
     public int queryCars(int xid, String location)
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return carscounter;
+        return carsCounter;
     }
 
     public int queryCarsPrice(int xid, String location)
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        return carsprice;
+        return carsPrice;
     }
 
     public int queryCustomerBill(int xid, String custName)
@@ -212,7 +215,7 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        flightcounter--;
+        flightCounter--;
         return true;
     }
 
@@ -220,7 +223,7 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        carscounter--;
+        carsCounter--;
         return true;
     }
 
@@ -228,19 +231,28 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        roomscounter--;
+        roomsCounter--;
         return true;
     }
 
     // TECHNICAL/TESTING INTERFACE
     public boolean reconnect()
             throws RemoteException {
-        String rmiPort = System.getProperty("rmiPort");
-        if (rmiPort == null) {
-            rmiPort = "";
-        } else if (!rmiPort.equals("")) {
-            rmiPort = "//:" + rmiPort + "/";
+        Properties properties = new Properties();
+        String rmiPort = null;
+        try {
+            properties.load(new FileInputStream("conf/ddb.conf"));
+            rmiPort = properties.getProperty("rm.port");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        
+//        String rmiPort = System.getProperty("rmiPort");
+//        if (rmiPort == null) {
+//            rmiPort = "";
+//        } else if (!rmiPort.equals("")) {
+//            rmiPort = "//:" + rmiPort + "/";
+//        }
 
         try {
             rmFlights =
