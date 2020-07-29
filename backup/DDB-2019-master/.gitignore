@@ -1,0 +1,12 @@
+
+*.class
+
+# Log file
+*.log
+
+.idea/
+ddb.iml
+
+bin/
+/src/test.part2/results/
+/src/test.part2/data/

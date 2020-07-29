@@ -1,0 +1,17 @@
+1
+1 call start
+1 return
+1 call addFlight xid "MU5377" 100 500
+1 return true
+1 call addRooms xid "HANDAN" 300 350
+1 return true
+1 call dieTMAfterCommit
+1 return true
+1 call commit xid
+1 except java.rmi.RemoteException
+1 launch TM
+1 call queryFlight xid "MU5377"
+1 return 100
+1 call queryRooms xid "HANDAN"
+1 return 300
+1 exit
