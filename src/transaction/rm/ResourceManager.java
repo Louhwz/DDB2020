@@ -8,6 +8,7 @@ import java.util.Set;
 import lockmgr.DeadlockException;
 import transaction.exception.InvalidIndexException;
 import transaction.exception.InvalidTransactionException;
+import transaction.model.ResourceItem;
 
 /**
  * Interface for the Resource Manager of the Distributed Travel Reservation

@@ -5,7 +5,6 @@ import lockmgr.LockManager;
 import transaction.exceptions.InvalidIndexException;
 import transaction.exceptions.InvalidTransactionException;
 import transaction.exceptions.TransactionManagerUnaccessibleException;
-import transaction.models.ResourceItem;
 
 import java.io.*;
 import java.net.Socket;

@@ -5,7 +5,8 @@ import java.rmi.Naming;
 import java.util.Properties;
 
 /**
- * A toy client of the Distributed Travel Reservation System.
+ * myzhou19@fudan.edu.cn
+ * 2020-7-30
  */
 
 public class Client {
