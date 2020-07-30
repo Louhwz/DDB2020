@@ -1,9 +1,11 @@
+*.class
+
+# Log file
+*.log
+
 .idea/
+ddb.iml
+
 bin/
-
-*.zip
-log/
-*.pt
-__pycache__
-.ipynb_checkpoints
-
+/src/test/results/
+/src/test/data/
