@@ -1,4 +1,4 @@
-package transaction.rm;
+package transaction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,12 +14,10 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import lockmgr.DeadlockException;
 import lockmgr.LockManager;
-import transaction.*;
 import transaction.exception.InvalidIndexException;
 import transaction.exception.InvalidTransactionException;
 import transaction.exception.TransactionManagerUnaccessibleException;
@@ -35,6 +33,10 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
     protected final static String TRANSACTION_LOG_FILENAME = "transactions.log";
 
     public ResourceManagerImpl(String rmiName) throws RemoteException {
+        if (!(rmiName.equals(RMINameCars) || rmiName.equals(RMINameCustomers) ||
+                rmiName.equals(RMINameFlights) || rmiName.equals(RMINameRooms)))
+            throw new RemoteException("None valid Resource Name : " + rmiName);
+
         myRMIName = rmiName;
         dieTime = "NoDie";
 
@@ -84,7 +86,7 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
 
         try {
             ResourceManagerImpl obj = new ResourceManagerImpl(rmiName);
-            Naming.bind(rmiPort + rmiName, obj);
+            Naming.rebind(rmiPort + rmiName, obj);
             System.out.println(rmiName + "bound!");
         } catch (Exception e) {
             System.err.println(rmiName + " not bound:" + e);

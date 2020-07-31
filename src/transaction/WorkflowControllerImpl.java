@@ -2,12 +2,9 @@ package transaction;
 
 import transaction.exception.InvalidTransactionException;
 import transaction.exception.TransactionAbortedException;
-import transaction.rm.ResourceManager;
 
-import java.io.FileInputStream;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.util.Properties;
 
 /**
  * Workflow Controller for the Distributed Travel Reservation System.
@@ -34,11 +31,7 @@ public class WorkflowControllerImpl
         System.setSecurityManager(new SecurityManager());
 
         String rmiPort = System.getProperty("rmiPort");
-        if (rmiPort == null) {
-            rmiPort = "";
-        } else if (!rmiPort.equals("")) {
-            rmiPort = "//:" + rmiPort + "/";
-        }
+        rmiPort = Utils.genrConSyntax(rmiPort);
 
         try {
             WorkflowControllerImpl obj = new WorkflowControllerImpl();
@@ -238,21 +231,9 @@ public class WorkflowControllerImpl
     // TECHNICAL/TESTING INTERFACE
     public boolean reconnect()
             throws RemoteException {
-        Properties properties = new Properties();
-        String rmiPort = null;
-        try {
-            properties.load(new FileInputStream("conf/ddb.conf"));
-            rmiPort = properties.getProperty("rm.port");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-//        String rmiPort = System.getProperty("rmiPort");
-//        if (rmiPort == null) {
-//            rmiPort = "";
-//        } else if (!rmiPort.equals("")) {
-//            rmiPort = "//:" + rmiPort + "/";
-//        }
+
+        String rmiPort = System.getProperty("rmiPort");
+        rmiPort = Utils.genrConSyntax(rmiPort);
 
         try {
             rmFlights =

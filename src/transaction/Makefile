@@ -3,9 +3,9 @@ PROJECTROOT = ..
 PATH = /usr/bin
 all : server client
 
-server : ./rm/ResourceManager.class \
-         ./rm/ResourceManagerImpl.class \
-         ./rm/ResourceManagerImpl_Stub.class \
+server : ResourceManager.class \
+         ResourceManagerImpl.class \
+         ResourceManagerImpl_Stub.class \
          TransactionManager.class \
          TransactionManagerImpl.class \
          TransactionManagerImpl_Stub.class \
@@ -24,16 +24,16 @@ runtm : server
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -Djava.security.policy=./security-policy transaction.TransactionManagerImpl
 
 runrmflights : server
-	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMFlights -Djava.security.policy=./security-policy transaction.rm.ResourceManagerImpl
+	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMFlights -Djava.security.policy=./security-policy transaction.ResourceManagerImpl
 
 runrmrooms : server
-	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMRooms -Djava.security.policy=./security-policy transaction.rm.ResourceManagerImpl
+	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMRooms -Djava.security.policy=./security-policy transaction.ResourceManagerImpl
 
 runrmcars : server
-	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMCars -Djava.security.policy=./security-policy transaction.rm.ResourceManagerImpl
+	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMCars -Djava.security.policy=./security-policy transaction.ResourceManagerImpl
 
 runrmcustomers : server
-	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMCustomers -Djava.security.policy=./security-policy transaction.rm.ResourceManagerImpl
+	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DrmiName=RMCustomers -Djava.security.policy=./security-policy transaction.ResourceManagerImpl
 
 runwc : server
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -Djava.security.policy=./security-policy transaction.WorkflowControllerImpl
@@ -42,10 +42,11 @@ runclient : client
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) transaction.Client
 
 clean :
+#	$(RM) *.class
+#	$(RM) ./exception/*.class
+#	$(RM) ./models/*.class
 	/bin/rm -rf *.class
-	/bin/rm -rf ./rm/*.class
-	/bin/rm -rf ./exception/*.class
-
+	/bin/rm -rf */*.class
 
 %.class : %.java
 	$(PATH)/javac -classpath $(PROJECTROOT) $<

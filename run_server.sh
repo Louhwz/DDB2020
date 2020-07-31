@@ -11,8 +11,11 @@ make clean
 make server
 
 # run registry
-make run registry &
-make run tm &
+make runregistry &
+make runtm &
 make runrmflights &
-
+make runrmrooms &
+make runrmcars &
+make runrmcustomers &
+make runwc &
 
