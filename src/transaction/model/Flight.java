@@ -24,6 +24,44 @@ public class Flight implements ResourceItem, Serializable {
         this.isDeleted = false;
     }
 
+    public String getFlightNum() {
+        return flightNum;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getNumSeats() {
+        return numSeats;
+    }
+
+    public void addSeats(int addSeats) {
+        this.numSeats += addSeats;
+        this.numAvail += addSeats;
+    }
+
+    public int getNumAvail() {
+        return numAvail;
+    }
+
+    public void cancelResv(int num) {
+        this.numAvail += num;
+    }
+
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
+            return false;
+        }
+
+        this.numAvail -= num;
+        return true;
+    }
+
     @Override
     public String[] getColumnNames() {
         return new String[]{"flightNum", "price", "numSeats", "numAvail", "isDeleted"};

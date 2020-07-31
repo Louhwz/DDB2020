@@ -25,14 +25,61 @@ public class Hotel implements ResourceItem, Serializable {
         isDeleted = false;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getNumRooms() {
+        return numRooms;
+    }
+
+    public void addRooms(int addRooms) {
+        this.numRooms += addRooms;
+        this.numAvail += addRooms;
+    }
+
+    public boolean reduceRooms(int reduceRooms) {
+        if (reduceRooms > this.numAvail) {
+            return false;
+        }
+
+        this.numRooms -= reduceRooms;
+        this.numAvail -= reduceRooms;
+        return true;
+    }
+
+    public int getNumAvail() {
+        return numAvail;
+    }
+
+    public void cancelResv(int num) {
+        this.numAvail += num;
+    }
+
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
+            return false;
+        }
+        this.numAvail -= num;
+        return true;
+    }
+
     @Override
     public String[] getColumnNames() {
-        return new String[]{"location", "price", "numRooms", "numAvail"};
+        return new String[]{"location", "price", "numRooms", "numAvail", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[]{location, String.valueOf(price), String.valueOf(numRooms), String.valueOf(numAvail)};
+        return new String[]{location, String.valueOf(price), String.valueOf(numRooms), String.valueOf(numAvail), String.valueOf(isDeleted)};
     }
 
     @Override

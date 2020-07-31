@@ -24,6 +24,50 @@ public class Car implements ResourceItem, Serializable {
         this.isDeleted = false;
     }
 
+
+    public String getLocation() {
+        return location;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getNumCars() {
+        return numCars;
+    }
+
+    public int getNumAvail() {
+        return numAvail;
+    }
+
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
+            return false;
+        }
+        this.numAvail -= num;
+        return true;
+    }
+
+    public void cancelResv(int num) {
+        this.numAvail += num;
+    }
+
+    public void addCars(int num) {
+        this.numCars += num;
+        this.numAvail += num;
+    }
+
+    public void deleteCars(int num) {
+        this.numCars -= num;
+        this.numAvail -= num;
+    }
+
+
     @Override
     public String[] getColumnNames() {
         return new String[]{"location", "price", "numCars", "numAvail", "isDeleted"};

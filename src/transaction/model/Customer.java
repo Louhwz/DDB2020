@@ -15,16 +15,17 @@ public class Customer implements ResourceItem, Serializable {
 
     public Customer(String custName) {
         this.custName = custName;
+        this.isDeleted = false;
     }
 
     @Override
     public String[] getColumnNames() {
-        return new String[]{"custName"};
+        return new String[]{"custName", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[]{custName};
+        return new String[]{custName, String.valueOf(isDeleted)};
     }
 
     @Override
