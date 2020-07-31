@@ -23,6 +23,7 @@ import transaction.*;
 import transaction.exception.InvalidIndexException;
 import transaction.exception.InvalidTransactionException;
 import transaction.exception.TransactionManagerUnaccessibleException;
+import transaction.model.ResourceItem;
 
 /**
  * Resource Manager for the Distributed Travel Reservation System.
