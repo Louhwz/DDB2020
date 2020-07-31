@@ -1,0 +1,8 @@
+# Intellij files
+.idea/
+bin/
+build/
+*.iml
+
+# Compiled class file
+*.class

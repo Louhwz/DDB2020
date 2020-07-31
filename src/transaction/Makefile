@@ -3,17 +3,17 @@ PROJECTROOT = ..
 PATH = /usr/bin
 all : server client
 
-server : ResourceManager.class \
-         ResourceManagerImpl.class \
-         ResourceManagerImpl_Stub.class \
+server : ./rm/ResourceManager.class \
+         ./rm/ResourceManagerImpl.class \
+         ./rm/ResourceManagerImpl_Stub.class \
          TransactionManager.class \
          TransactionManagerImpl.class \
          TransactionManagerImpl_Stub.class \
          WorkflowController.class \
          WorkflowControllerImpl.class \
          WorkflowControllerImpl_Stub.class \
-         InvalidTransactionException.class \
-         TransactionAbortedException.class
+         ./exception/InvalidTransactionException.class \
+         ./exception/TransactionAbortedException.class
 
 client: Client.class
 
@@ -42,7 +42,10 @@ runclient : client
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) transaction.Client
 
 clean :
-	$(RM) *.class
+	/bin/rm -rf *.class
+	/bin/rm -rf ./rm/*.class
+	/bin/rm -rf ./exception/*.class
+
 
 %.class : %.java
 	$(PATH)/javac -classpath $(PROJECTROOT) $<

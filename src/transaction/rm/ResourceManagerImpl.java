@@ -34,36 +34,6 @@ import transaction.model.ResourceItem;
 public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject implements ResourceManager {
     protected final static String TRANSACTION_LOG_FILENAME = "transactions.log";
 
-    public Set getTransactions() {
-        return xids;
-    }
-
-    public Collection getUpdatedRows(int xid, String tablename) {
-        RMTable table = getTable(xid, tablename);
-        return new ArrayList(table.table.values());
-    }
-
-    public Collection getUpdatedRows(String tablename) {
-        RMTable table = getTable(tablename);
-        return new ArrayList(table.table.values());
-    }
-
-    protected String myRMIName = null; // Used to distinguish this RM from other
-
-    protected String dieTime;
-
-    public void setDieTime(String time) throws RemoteException {
-        dieTime = time;
-        System.out.println("Die time set to : " + time);
-    }
-
-    public String getID() throws RemoteException {
-        return myRMIName;
-    }
-
-    // RMs
-    protected HashSet xids = new HashSet();
-
     public ResourceManagerImpl(String rmiName) throws RemoteException {
         myRMIName = rmiName;
         dieTime = "NoDie";
@@ -99,6 +69,59 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
             }
         }).start();
     }
+
+    public static void main(String[] args) {
+        System.setSecurityManager(new SecurityManager());
+
+        String rmiName = System.getProperty("rmiName");
+        if (rmiName == null || rmiName.equals("")) {
+            System.err.println("No RMI name given");
+            System.exit(1);
+        }
+
+        String rmiPort = System.getProperty("rmiPort");
+        rmiPort = Utils.genrConSyntax(rmiPort);
+
+        try {
+            ResourceManagerImpl obj = new ResourceManagerImpl(rmiName);
+            Naming.bind(rmiPort + rmiName, obj);
+            System.out.println(rmiName + "bound!");
+        } catch (Exception e) {
+            System.err.println(rmiName + " not bound:" + e);
+            System.exit(1);
+        }
+    }
+
+    public Set getTransactions() {
+        return xids;
+    }
+
+    public Collection getUpdatedRows(int xid, String tablename) {
+        RMTable table = getTable(xid, tablename);
+        return new ArrayList(table.table.values());
+    }
+
+    public Collection getUpdatedRows(String tablename) {
+        RMTable table = getTable(tablename);
+        return new ArrayList(table.table.values());
+    }
+
+    protected String myRMIName = null; // Used to distinguish this RM from other
+
+    protected String dieTime;
+
+    public void setDieTime(String time) throws RemoteException {
+        dieTime = time;
+        System.out.println("Die time set to : " + time);
+    }
+
+    public String getID() throws RemoteException {
+        return myRMIName;
+    }
+
+    // RMs
+    protected HashSet xids = new HashSet();
+
 
     public void ping() {
     }
@@ -146,19 +169,8 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
     }
 
     public boolean reconnect() {
-        Properties prop = new Properties();
-        try {
-            prop.load(new FileInputStream("conf/ddb.conf"));
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return false;
-        }
-        String rmiPort = prop.getProperty("tm.port");
-        if (rmiPort == null) {
-            rmiPort = "";
-        } else if (!rmiPort.equals("")) {
-            rmiPort = "//:" + rmiPort + "/";
-        }
+        String rmiPort = System.getProperty("rmiPort");
+        rmiPort = Utils.genrConSyntax(rmiPort);
 
         try {
             tm = (TransactionManager) Naming.lookup(rmiPort + TransactionManager.RMIName);
