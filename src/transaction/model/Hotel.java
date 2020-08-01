@@ -4,19 +4,25 @@ import transaction.exception.InvalidIndexException;
 
 import java.io.Serializable;
 
+/**
+ * @Author Louhwz
+ * @Date 2020/07/31
+ * @Time 15:51
+ */
 public class Hotel implements ResourceItem, Serializable {
+    // 每个地点只有一个hotel
     private String location;
     private int price;
     private int numRooms;
     private int numAvail;
-    private boolean isdeleted;
+    private boolean isDeleted;
 
     public Hotel(String location, int price, int numRooms, int numAvail) {
         this.location = location;
         this.price = price;
         this.numRooms = numRooms;
         this.numAvail = numAvail;
-        this.isdeleted = false;
+        isDeleted = false;
     }
 
     public String getLocation() {
@@ -54,27 +60,26 @@ public class Hotel implements ResourceItem, Serializable {
         return numAvail;
     }
 
-    public void cancelResv() {
-        this.numAvail += 1;
+    public void cancelResv(int num) {
+        this.numAvail += num;
     }
 
-    public boolean addResv() {
-        if (this.numAvail < 1) {
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
             return false;
         }
-
-        this.numAvail -= 1;
+        this.numAvail -= num;
         return true;
     }
 
     @Override
     public String[] getColumnNames() {
-        return new String[0];
+        return new String[]{"location", "price", "numRooms", "numAvail", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[0];
+        return new String[]{location, String.valueOf(price), String.valueOf(numRooms), String.valueOf(numAvail), String.valueOf(isDeleted)};
     }
 
     @Override
@@ -89,16 +94,16 @@ public class Hotel implements ResourceItem, Serializable {
 
     @Override
     public boolean isDeleted() {
-        return this.isdeleted;
+        return this.isDeleted;
     }
 
     @Override
     public void delete() {
-        this.isdeleted = true;
+        this.isDeleted = true;
     }
 
     @Override
     public Object clone() {
-        return new Hotel(getLocation(), getPrice(), getNumRooms(), getNumAvail());
+        return new Hotel(this.location, this.price, this.numRooms, this.numAvail);
     }
 }

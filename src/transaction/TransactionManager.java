@@ -1,7 +1,5 @@
 package transaction;
 
-import transaction.rm.ResourceManager;
-
 import java.rmi.*;
 
 /**

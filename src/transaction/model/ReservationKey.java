@@ -27,6 +27,7 @@ public class ReservationKey implements Serializable
         this.resvType = resvType;
     }
 
+    @Override
     public boolean equals(Object o)
     {
         if (o == null || !(o instanceof ReservationKey))
@@ -39,11 +40,13 @@ public class ReservationKey implements Serializable
         return false;
     }
 
+    @Override
     public int hashCode()
     {
         return custName.hashCode() + resvType + resvKey.hashCode();
     }
 
+    @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer("[");

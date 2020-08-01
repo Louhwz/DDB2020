@@ -4,19 +4,24 @@ import transaction.exception.InvalidIndexException;
 
 import java.io.Serializable;
 
+/**
+ * @Author Louhwz
+ * @Date 2020/07/31
+ * @Time 15:26
+ */
 public class Flight implements ResourceItem, Serializable {
     private String flightNum;
     private int price;
     private int numSeats;
     private int numAvail;
-    private boolean isdeleted;
+    private boolean isDeleted;
 
     public Flight(String flightNum, int price, int numSeats, int numAvail) {
         this.flightNum = flightNum;
         this.price = price;
         this.numSeats = numSeats;
         this.numAvail = numAvail;
-        this.isdeleted = false;
+        this.isDeleted = false;
     }
 
     public String getFlightNum() {
@@ -44,27 +49,27 @@ public class Flight implements ResourceItem, Serializable {
         return numAvail;
     }
 
-    public void cancelResv() {
-        this.numAvail += 1;
+    public void cancelResv(int num) {
+        this.numAvail += num;
     }
 
-    public boolean addResv() {
-        if (this.numAvail < 1) {
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
             return false;
         }
 
-        this.numAvail -= 1;
+        this.numAvail -= num;
         return true;
     }
 
     @Override
     public String[] getColumnNames() {
-        return new String[0];
+        return new String[]{"flightNum", "price", "numSeats", "numAvail", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[0];
+        return new String[]{flightNum, String.valueOf(price), String.valueOf(numSeats), String.valueOf(numAvail), String.valueOf(isDeleted)};
     }
 
     @Override
@@ -74,21 +79,21 @@ public class Flight implements ResourceItem, Serializable {
 
     @Override
     public Object getKey() {
-        return this.flightNum;
+        return flightNum;
     }
 
     @Override
     public boolean isDeleted() {
-        return this.isdeleted;
+        return this.isDeleted;
     }
 
     @Override
     public void delete() {
-        this.isdeleted = true;
+        this.isDeleted = true;
     }
 
     @Override
     public Object clone() {
-        return new Flight(getFlightNum(), getPrice(), getNumSeats(), getNumAvail());
+        return new Flight(this.flightNum, this.price, this.numSeats, this.numAvail);
     }
 }

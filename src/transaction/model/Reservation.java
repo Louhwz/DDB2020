@@ -38,14 +38,17 @@ public class Reservation implements ResourceItem, Serializable {
 		this.resvKey = resvKey;
 	}
 
+	@Override
 	public String[] getColumnNames() {
 		return new String[] { "custName", "resvType", "resvKey" };
 	}
 
+	@Override
 	public String[] getColumnValues() {
 		return new String[] { custName, "" + resvType, "" + resvKey };
 	}
 
+	@Override
 	public Object getIndex(String indexName) throws InvalidIndexException {
 		if (indexName.equals(INDEX_CUSTNAME))
 			return custName;
@@ -53,6 +56,7 @@ public class Reservation implements ResourceItem, Serializable {
 			throw new InvalidIndexException(indexName);
 	}
 
+	@Override
 	public Object getKey() {
 		return new ReservationKey(custName, resvType, resvKey);
 	}

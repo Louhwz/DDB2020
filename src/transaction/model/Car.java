@@ -4,20 +4,26 @@ import transaction.exception.InvalidIndexException;
 
 import java.io.Serializable;
 
+/**
+ * @Author Louhwz
+ * @Date 2020/07/31
+ * @Time 15:35
+ */
 public class Car implements ResourceItem, Serializable {
     private String location;
     private int price;
     private int numCars;
     private int numAvail;
-    private boolean isdeleted;
+    private boolean isDeleted;
 
     public Car(String location, int price, int numCars, int numAvail) {
         this.location = location;
         this.price = price;
         this.numCars = numCars;
-        this.numAvail = numCars;
-        this.isdeleted = false;
+        this.numAvail = numAvail;
+        this.isDeleted = false;
     }
+
 
     public String getLocation() {
         return location;
@@ -35,46 +41,47 @@ public class Car implements ResourceItem, Serializable {
         return numCars;
     }
 
-    public void addCars(int addCars) {
-        this.numCars += addCars;
-        this.numAvail += addCars;
-    }
-
-    public boolean reduceCars(int reduceCars) {
-        if (reduceCars > this.numAvail) {
-            return false;
-        }
-
-        this.numCars -= reduceCars;
-        this.numAvail -= reduceCars;
-        return true;
-    }
-
     public int getNumAvail() {
         return numAvail;
     }
 
-    public void cancelResv() {
-        this.numAvail += 1;
-    }
-
-    public boolean addResv() {
-        if (this.numAvail < 1) {
+    public boolean addResv(int num) {
+        if (this.numAvail < num) {
             return false;
         }
-
-        this.numAvail -= 1;
+        this.numAvail -= num;
         return true;
     }
 
+    public void cancelResv(int num) {
+        this.numAvail += num;
+    }
+
+    public void addCars(int num) {
+        this.numCars += num;
+        this.numAvail += num;
+    }
+
+    public boolean deleteCars(int num) {
+        if (num > this.numAvail) {
+            return false;
+        }
+
+        this.numCars -= num;
+        this.numAvail -= num;
+
+        return true;
+    }
+
+
     @Override
     public String[] getColumnNames() {
-        return new String[0];
+        return new String[]{"location", "price", "numCars", "numAvail", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[0];
+        return new String[]{location, String.valueOf(price), String.valueOf(numCars), String.valueOf(numAvail), String.valueOf(isDeleted)};
     }
 
     @Override
@@ -89,16 +96,16 @@ public class Car implements ResourceItem, Serializable {
 
     @Override
     public boolean isDeleted() {
-        return this.isdeleted;
+        return this.isDeleted;
     }
 
     @Override
     public void delete() {
-        this.isdeleted = false;
+        this.isDeleted = true;
     }
 
     @Override
     public Object clone() {
-        return new Car(getLocation(), getPrice(), getNumCars(), getNumAvail());
+        return new Car(this.location, this.price, this.numCars, this.numAvail);
     }
 }

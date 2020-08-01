@@ -1,12 +1,7 @@
 package transaction;
 
-import transaction.rm.ResourceManager;
-
-import java.io.FileInputStream;
-import java.rmi.*;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.Properties;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
 
 /**
  * Transaction Manager for the Distributed Travel Reservation System.
@@ -21,39 +16,16 @@ public class TransactionManagerImpl
     public static void main(String args[]) {
         System.setSecurityManager(new SecurityManager());
 
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream("conf/ddb.conf"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        String tmPort = properties.getProperty("tm.port");
+        String rmiPort = System.getProperty("rmiPort");
+        rmiPort = Utils.genrConSyntax(rmiPort);
         try {
             TransactionManagerImpl tmi = new TransactionManagerImpl();
-            Registry _registry = LocateRegistry.createRegistry(Integer.parseInt(tmPort));
-            _registry.bind(TransactionManager.RMIName, tmi);
-            System.out.println("TM bound in port: " + tmPort);
+            Naming.rebind(rmiPort + TransactionManager.RMIName, tmi);
+            System.out.println("TM bound!");
         } catch (Exception e) {
             System.err.println("TM not bound:" + e);
             System.exit(1);
         }
-//        String
-//        String rmiPort = System.getProperty("rmiPort");
-//        if (rmiPort == null) {
-//            rmiPort = "";
-//        } else if (!rmiPort.equals("")) {
-//            rmiPort = "//:" + rmiPort + "/";
-//        }
-//
-//        try {
-//            TransactionManagerImpl obj = new TransactionManagerImpl();
-//            Naming.rebind(rmiPort + TransactionManager.RMIName, obj);
-//            System.out.println("TM bound");
-//        } catch (Exception e) {
-//            System.err.println("TM not bound:" + e);
-//            System.exit(1);
-//        }
     }
 
     public void ping() throws RemoteException {

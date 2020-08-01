@@ -1,4 +1,4 @@
-package transaction.rm;
+package transaction;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -83,4 +83,8 @@ public interface ResourceManager extends Remote {
     String RMINameCars = "RMCars";
 
     String RMINameCustomers = "RMCustomers";
+
+    // Reservation table name
+    public static final String TableMameReservations = "RMReservations";
+
 }

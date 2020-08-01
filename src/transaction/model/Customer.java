@@ -4,27 +4,28 @@ import transaction.exception.InvalidIndexException;
 
 import java.io.Serializable;
 
+/**
+ * @Author Louhwz
+ * @Date 2020/07/31
+ * @Time 16:06
+ */
 public class Customer implements ResourceItem, Serializable {
     private String custName;
-    private boolean isdeleted;
+    private boolean isDeleted;
 
     public Customer(String custName) {
         this.custName = custName;
-        isdeleted = false;
-    }
-
-    public String getCustName() {
-        return custName;
+        this.isDeleted = false;
     }
 
     @Override
     public String[] getColumnNames() {
-        return new String[0];
+        return new String[]{"custName", "isDeleted"};
     }
 
     @Override
     public String[] getColumnValues() {
-        return new String[0];
+        return new String[]{custName, String.valueOf(isDeleted)};
     }
 
     @Override
@@ -34,21 +35,21 @@ public class Customer implements ResourceItem, Serializable {
 
     @Override
     public Object getKey() {
-        return this.custName;
+        return custName;
     }
 
     @Override
     public boolean isDeleted() {
-        return this.isdeleted;
+        return this.isDeleted;
     }
 
     @Override
     public void delete() {
-        this.isdeleted = true;
+        this.isDeleted = true;
     }
 
     @Override
     public Object clone() {
-        return new Customer(getCustName());
+        return new Customer(custName);
     }
 }
