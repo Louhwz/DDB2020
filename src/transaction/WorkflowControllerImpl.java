@@ -262,6 +262,7 @@ public class WorkflowControllerImpl
         }
 
         try {
+            //TODO maybe ping is better
             if (rmFlights.reconnect() && rmRooms.reconnect() &&
                     rmCars.reconnect() && rmCustomers.reconnect()) {
                 return true;

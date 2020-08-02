@@ -17,5 +17,5 @@ make runrmflights &
 make runrmrooms &
 make runrmcars &
 make runrmcustomers &
-make runwc &
+#make runwc &
 

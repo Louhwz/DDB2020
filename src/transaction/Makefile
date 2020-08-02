@@ -15,7 +15,7 @@ server : ResourceManager.class \
          ./exception/InvalidTransactionException.class \
          ./exception/TransactionAbortedException.class
 
-client: Client.class
+client: Client.class MyClient.class
 
 runregistry :
 	$(PATH)/rmiregistry -J-classpath -J$(PROJECTROOT) $(RMIREGPORT)
@@ -41,12 +41,15 @@ runwc : server
 runclient : client
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) transaction.Client
 
+runmyclient: client
+	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) transaction.MyClient
+
 clean :
-#	$(RM) *.class
-#	$(RM) ./exception/*.class
-#	$(RM) ./models/*.class
 	/bin/rm -rf *.class
 	/bin/rm -rf */*.class
+	#	$(RM) *.class
+    #	$(RM) ./exception/*.class
+    #	$(RM) ./models/*.class
 
 %.class : %.java
 	$(PATH)/javac -classpath $(PROJECTROOT) $<
@@ -54,4 +57,4 @@ clean :
 %_Stub.class : %.java
 	$(PATH)/rmic -classpath $(PROJECTROOT) -d $(PROJECTROOT) transaction.$*
 
-.PHONY : runregistry runtm runrmflights runrmrooms runrmcars runrmcustomers runwc runclient clean
+.PHONY : runregistry runtm runrmflights runrmrooms runrmcars runrmcustomers runwc runclient runmyclient clean

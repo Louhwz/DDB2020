@@ -1,5 +1,8 @@
 package transaction;
 
+import transaction.exception.InvalidTransactionException;
+import transaction.exception.TransactionAbortedException;
+
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 
@@ -12,6 +15,15 @@ import java.rmi.RemoteException;
 public class TransactionManagerImpl
         extends java.rmi.server.UnicastRemoteObject
         implements TransactionManager {
+
+    // in single tm, using xidNum with file record can ensure uniquness
+    private int xidNum;
+
+    private String dieTime;
+
+    public TransactionManagerImpl() throws RemoteException {
+        dieTime = "NoDie";
+    }
 
     public static void main(String args[]) {
         System.setSecurityManager(new SecurityManager());
@@ -28,13 +40,16 @@ public class TransactionManagerImpl
         }
     }
 
-    public void ping() throws RemoteException {
-    }
 
     public void enlist(int xid, ResourceManager rm) throws RemoteException {
+        System.out.println("hello world");
     }
 
-    public TransactionManagerImpl() throws RemoteException {
+    public boolean commit(int xid) throws RemoteException, InvalidTransactionException, TransactionAbortedException {
+        return false;
+    }
+
+    public void ping() throws RemoteException {
     }
 
     public boolean dieNow()

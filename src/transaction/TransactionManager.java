@@ -1,5 +1,8 @@
 package transaction;
 
+import transaction.exception.InvalidTransactionException;
+import transaction.exception.TransactionAbortedException;
+
 import java.rmi.*;
 
 /**
@@ -11,6 +14,9 @@ import java.rmi.*;
  */
 
 public interface TransactionManager extends Remote {
+
+
+    boolean commit(int xid) throws RemoteException, InvalidTransactionException, TransactionAbortedException;
 
     boolean dieNow()
             throws RemoteException;
