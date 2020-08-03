@@ -8,6 +8,12 @@ import java.io.*;
  * @Time 16:25
  */
 public class Utils {
+    public static final String NO_DIE = "NoDie";
+
+    public static final String TM_DIE_BEFORE_COMMIT = "DIE_BEFORE_COMMIT";
+    public static final String TM_DIE_AFTER_COMMIT = "DIE_AFTER_COMMIT";
+
+
     public static String genrConSyntax(String rmiPort) {
         if (rmiPort == null)
             return "";
@@ -15,6 +21,13 @@ public class Utils {
             return "//:" + rmiPort + "/";
     }
 
+    /**
+     * override write
+     *
+     * @param filePath
+     * @param obj
+     * @return
+     */
     public static boolean storeObject(String filePath, Object obj) {
         File file = new File(filePath);
         file.getParentFile().mkdirs();
@@ -42,7 +55,6 @@ public class Utils {
         ObjectInputStream oin = null;
         try {
             oin = new ObjectInputStream(new FileInputStream(new File(filePath)));
-
             return oin.readObject();
         } catch (Exception e) {
             e.printStackTrace();

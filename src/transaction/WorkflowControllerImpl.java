@@ -64,7 +64,9 @@ public class WorkflowControllerImpl
     // TRANSACTION INTERFACE
     public int start()
             throws RemoteException {
-        return (xidCounter++);
+        int xid = tm.start();
+        //TODO: set & log
+        return xid;
     }
 
     public boolean commit(int xid)

@@ -1,6 +1,8 @@
 package test;
 
 import transaction.Utils;
+import transaction.model.Car;
+import transaction.model.Flight;
 import transaction.model.ResourceItem;
 
 import java.util.HashSet;
@@ -15,10 +17,10 @@ public class TestFileObject {
         String path = "src/test/data/tm_xids.log";
         HashSet<ResourceItem> set = new HashSet<>();
 
-//        Car car = new Car("SH", 100000, 20, 20);
-//        set.add(car);
+        Car car = new Car("SH", 100000, 20, 20);
+        set.add(car);
 //        set.add(new Flight("123", 123, 123, 123));
-//        Utils.storeObject(path, set);
+        Utils.storeObject(path, set);
         HashSet<ResourceItem> s1 = (HashSet) Utils.loadObject(path);
         for (ResourceItem k : s1) {
             System.out.println(k.getKey());

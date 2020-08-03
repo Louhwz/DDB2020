@@ -14,17 +14,25 @@ import java.rmi.*;
  */
 
 public interface TransactionManager extends Remote {
-
-
-    boolean commit(int xid) throws RemoteException, InvalidTransactionException, TransactionAbortedException;
+    String INITED = "INITED";
+    String PREPARED = "PREPARED";
+    String COMMITTED = "COMMITTED";
+    String ABORTED = "aborted";
 
     boolean dieNow()
             throws RemoteException;
 
+    void setDieTime(String dieTime) throws RemoteException;
+
     void ping() throws RemoteException;
 
-    void enlist(int xid, ResourceManager rm) throws RemoteException;
+    int start() throws RemoteException;
 
+    void enlist(int xid, ResourceManager rm) throws RemoteException, InvalidTransactionException;
+
+    boolean commit(int xid) throws RemoteException, InvalidTransactionException, TransactionAbortedException;
+
+    void abort(int xid) throws RemoteException, InvalidTransactionException;
 
     /**
      * The RMI name a TransactionManager binds to.
