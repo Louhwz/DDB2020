@@ -12,42 +12,80 @@
 
 
 # 2. 组件启动功能测试 Basic*.java
-- BasicBind.java
+## 2.1. 正常运行测试
+- [x] BasicBind.java
   - 绑定WC
-- BasicCommit.java
+- [x] BasicCommit.java
   - 绑定WC后，提交一个空commit
-- BasicAbort.java
+- [x] BasicAbort.java
   - 绑定WC后，放弃WC
+## 2.2. 异常测试
+- BasicXid.java
+  - 绑定WC后，使用错误的Xid进行commit，捕捉异常
 
 
 # 3. 基本业务逻辑测试
 主要为CRUD（create增, read读, update改, delete删）业务的独立以及组合测试。数据操作对象为Flight, Room, Car 以及 Customer。可以添加修改删除Flight, Room, Car, Customer。用户可以预订或者取消预订Flight, Room, Car。具体包括以下测试用例：
-- CRUDCreate.java
+## 3.1. 正常运行测试
+- [x] CRUDCreate.java
   - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
-- CRUDRead.java
+
+- [x] CRUDRead.java
   - **分为2个阶段**
   - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
   - 查询创建的数据，并进行校验
-- CRUDUpdate.java
-  - **分为3个阶段**
+
+- [x] CRUDUpdate.java
+  - **分为4个阶段**
   - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
   - 查询创建的数据，并进行校验
   - 修改刚刚增加的Flight，Room，Car 和 Customer的信息
   - 查询更新后的数据，并进行校验
+
 - CRUDDelete.java
-  - **此测试为可正常删除。分为3个阶段**
+  - **分为3个阶段**
   - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
   - 删除刚刚增加的Customer及其reservation，Flight，Room，Car的数据，**注意顺序**
   - 查询删除后的数据，并进行校验
-- CRUDDeleteFail.java
-  - **此测试为不可删除，在删除阶段因操作而请求失败。分为3个阶段**
+
+
+## 3.2. 异常测试
+- CRUDCreateFailParam.java
+  - **此测试为创建失败，在删除阶段因操作而请求失败。分为2个阶段**
+  - 增加Flight，Room，Car 和 Customer，（**注意增加的参数**）。
+    - **增加数量为负数**：增加 -1 个 flight
+    - **增加价格为负数**：增加 -1 个 room
+    - **增加数量和价格都为负数**：增加-1个，价格为-1的car 
+    - **增加的名字为null**：增加名字为 null 的customer
+    - 操作异常，创建无效。
+
+- CRUDCreateFailInvalidItem.java
+  - **此测试为创建失败，在删除阶段因操作而请求失败。分为2个阶段**
+  - 增加Flight 和 Customer。
+    - **Customer预订的Flight的参数有误**：预订 flight2，而flight2不存在
+    - 操作异常，创建无效。
+
+- [x] CRUDDeleteFailSeq.java
+  - **此测试为删除失败，在删除阶段因操作而请求失败。分为3个阶段**
   - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
-  - 删除刚刚增加的Flight，Room，Car 和 Customer的信息（**注意顺序**）。删除有Customer预订的Flight，Room，Car，删除失败。删除无效。
+  - 删除刚刚增加的Flight，Room，Car 和 Customer的信息（**注意顺序**）。
+    - 删除有Customer预订的Flight，Room，Car，删除失败。
+    - 操作异常，删除无效。
+  - 查询数据，并进行校验
+  
+- CRUDDeleteFailParam.java
+  - **此测试为删除失败，在删除阶段因操作而请求失败。分为3个阶段**
+  - 增加Flight，Room，Car 和 Customer，并给Customer预订Flight，Room 和 Car
+  - 删除刚刚增加的Flight，Room，Car 和 Customer的信息（**注意删除的参数**）。
+    - **删除数量为负数**：删除 -1 个 room
+    - **删除数量超过总数**：删除 10000000 辆 car
+    - **删除的用户不存在**：删除 customer2 
+    - 操作异常，删除无效。
   - 查询删除后的数据，并进行校验
-- 
 
 
-## 3.1. 2 基本业务逻辑测试
+
+## 3.3. 2 基本业务逻辑测试
 增删改查极其组合业务，包含数据Flight, Room, Car, Customer。可以添加修改删除Flight, Room, Car, Customer。用户可以预订
 或者取消预订Flight, Room, Car。8-16 个测试用例。
 - 增加Flight, Room, Car, Customer。
@@ -58,7 +96,7 @@
 - 用户取消预订Flight, Room, Car。
 - 输入异常
     - 异常key，数据
-## 3.2. 3 并发测试，锁功能测试
+## 3.4. 3 并发测试，锁功能测试
 当并发执行以上事务逻辑，能够正确执行。基于两阶段锁测试。随机选择基本事务。5-10个测试用例
 - 读读共享: T_L_RR
 - 读写等待: T_L_RW
@@ -69,7 +107,7 @@
     - 2数据，读写读写死锁: T_L_RWRW
     - 2数据，写读写读死锁: T_L_WRWR
     - 2数据，写写写写死锁: T_L_WWWW
-## 3.3. 4 宕机测试
+## 3.5. 4 宕机测试
 基于两阶段提交进行测试。随机选择基本事务。基于现有WC接口。 7-14个测试用例。
 - TM 宕机
     - 两阶段提交前宕机，事务失败. T_TM_DIE

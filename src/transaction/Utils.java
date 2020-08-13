@@ -87,6 +87,20 @@ public class Utils {
         }
     }
 
+    public static void CleanResults() {
+        try {
+            if (Runtime.getRuntime().exec("rm -rf data").waitFor() != 0) {
+                System.err.println("Clean data not successful");
+            }
+        } catch (IOException e) {
+            System.err.println("Cannot clean data: " + e);
+            System.exit(1);
+        } catch (InterruptedException e) {
+            System.err.println("WaitFor interrupted.");
+            System.exit(1);
+        }
+    }
+
     public static WorkflowController bindWC(String rmiPort) {
         WorkflowController wc = null;
         rmiPort = Utils.genrConSyntax(rmiPort);

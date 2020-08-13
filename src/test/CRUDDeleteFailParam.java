@@ -6,10 +6,9 @@ import static transaction.Utils.*;
 
 /**
  * @Author myzhou
- * @Date 2020/8/1
+ * @Date 2020/8/13
  */
-public class CRUDDeleteFail {
-
+public class CRUDDeleteFailParam {
     public static void main(String[] a) {
         WorkflowController wc = bindWC("3345");
 
@@ -45,13 +44,10 @@ public class CRUDDeleteFail {
 
             // phase 2: delete
             xid = wc.start();
-            if (!wc.deleteFlight(xid, "flight1")) {
-                System.err.println("Delete flight failed");
-            }
-            if (!wc.deleteRooms(xid, "room1", 10)) {
+            if (!wc.deleteRooms(xid, "room1", -1)) {
                 System.err.println("Delete room failed");
             }
-            if (!wc.deleteCars(xid, "car1", 10)) {
+            if (!wc.deleteCars(xid, "car1", 10000000)) {
                 System.err.println("Delete car failed");
             }
             if (!wc.deleteCustomer(xid, "customer1")) {
@@ -82,7 +78,7 @@ public class CRUDDeleteFail {
 
 
             System.out.println("Test pass.");
-//            ExitWC(wc, 0);
+            ExitWC(wc, 0);
         } catch (Exception e) {
 //            System.out.println("Test fail:" + e);
             e.printStackTrace();
