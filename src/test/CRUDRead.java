@@ -27,10 +27,10 @@ public class CRUDRead {
             if (!wc.reserveFlight(xid, "customer1", "flight1")) {
                 System.err.println("Reserve flight failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "room1")) {
+            if (!wc.reserveRoom(xid, "customer1", "room1")) {
                 System.err.println("Reserve room failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "car1")) {
+            if (!wc.reserveCar(xid, "customer1", "car1")) {
                 System.err.println("Reserve car failed");
             }
 
@@ -40,19 +40,19 @@ public class CRUDRead {
 
             xid = wc.start();
             int r1 = wc.queryFlight(xid, "flight1");
-            Check(wc, 100, r1);
+            Check(wc, 99, r1);
             int r2 = wc.queryFlightPrice(xid, "flight1");
             Check(wc, 499, r2);
             int r3 = wc.queryRooms(xid, "room1");
-            Check(wc, 99, r3);
+            Check(wc, 98, r3);
             int r4 = wc.queryRoomsPrice(xid, "room1");
-            Check(wc, 299, r4);
+            Check(wc, 399, r4);
             int r5 = wc.queryCars(xid, "car1");
-            Check(wc, 89, r5);
+            Check(wc, 88, r5);
             int r6 = wc.queryCarsPrice(xid, "car1");
             Check(wc, 299000, r6);
             int r7 = wc.queryCustomerBill(xid, "customer1");
-            Check(wc, 499 + 299 + 299000, r6);
+            Check(wc, 499 + 399 + 299000, r7);
             if (!wc.commit(xid)) {
                 System.err.println("Commit failed");
             }
