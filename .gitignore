@@ -9,3 +9,11 @@ ddb.iml
 bin/
 /src/test/results/
 /src/test/data/
+# Intellij files
+build/
+*.iml
+
+# Compiled class file
+*.class
+
+src/test/

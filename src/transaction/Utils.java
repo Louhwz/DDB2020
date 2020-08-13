@@ -9,7 +9,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 /**
- * @Author Louhwz
+ * @Author Louhwz and myzhou
  * @Date 2020/07/31
  * @Time 16:25
  */

@@ -170,6 +170,7 @@ public class TransactionManagerImpl
             rmSets.removeAll(committedRM);
             updateXidRMs(xid, rmSets, ACTION.ADD);
         }
+        System.out.println("TM commited!");
         return true;
     }
 

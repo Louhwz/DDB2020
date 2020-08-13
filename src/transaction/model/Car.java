@@ -62,14 +62,18 @@ public class Car implements ResourceItem, Serializable {
         this.numAvail += num;
     }
 
-    public boolean deleteCars(int num) {
-        if (num > this.numAvail) {
+    public void deleteCars(int num) {
+        this.numCars -= num;
+        this.numAvail -= num;
+    }
+
+    public boolean reduceCars(int reduceCars) {
+        if (reduceCars > this.numAvail) {
             return false;
         }
 
-        this.numCars -= num;
-        this.numAvail -= num;
-
+        this.numCars -= reduceCars;
+        this.numAvail -= reduceCars;
         return true;
     }
 

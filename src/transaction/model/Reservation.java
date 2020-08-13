@@ -18,6 +18,8 @@ import java.io.Serializable;
 public class Reservation implements ResourceItem, Serializable {
 	public static final String INDEX_CUSTNAME = "custName";
 
+	public static final String INDEX_RESERV_KEY = "resvKey";
+
 	public static final int RESERVATION_TYPE_FLIGHT = 1;
 
 	public static final int RESERVATION_TYPE_HOTEL = 2;

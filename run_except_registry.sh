@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
 
-# make lock
-cd src/lockmgr || exit
-make clean
-make
 
 # make server
-cd ../transaction || exit
+cd src/transaction || exit
+
 rm -rf data/
-make clean
-make server
 
 # run registry
-
-make runregistry &
 make runtm &
 make runrmflights &
 make runrmrooms &

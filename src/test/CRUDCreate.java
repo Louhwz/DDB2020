@@ -5,6 +5,10 @@ import transaction.WorkflowController;
 import static transaction.Utils.ExitWC;
 import static transaction.Utils.bindWC;
 
+/**
+ * @Author myzhou
+ * @Date 2020/8/1
+ */
 public class CRUDCreate {
 
     public static void main(String[] a) {
@@ -28,10 +32,10 @@ public class CRUDCreate {
             if (!wc.reserveFlight(xid, "customer1", "flight1")) {
                 System.err.println("Reserve flight failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "room1")) {
+            if (!wc.reserveRoom(xid, "customer1", "room1")) {
                 System.err.println("Reserve room failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "car1")) {
+            if (!wc.reserveCar(xid, "customer1", "car1")) {
                 System.err.println("Reserve car failed");
             }
 
