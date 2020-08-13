@@ -259,7 +259,7 @@ public class WorkflowControllerImpl
         Collection reservations = null;
         try {
             // find all the reservations related to the deleted flight
-            reservations = this.rmCustomers.query(xid, ResourceManager.TableNameReservations, Reservation.INDEX_CUSTNAME, flightNum);
+            reservations = this.rmCustomers.query(xid, ResourceManager.TableNameReservations, Reservation.INDEX_RESERV_KEY, flightNum);
             if (!reservations.isEmpty()) {
                 return false;
             }
