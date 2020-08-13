@@ -31,6 +31,7 @@ import transaction.model.ResourceItem;
 
 public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject implements ResourceManager {
     protected final static String TRANSACTION_LOG_FILENAME = "transactions.log";
+    protected final static String TRANSACTION_LOG_FILEPATH = "data/" + TRANSACTION_LOG_FILENAME;
 
     public ResourceManagerImpl(String rmiName) throws RemoteException {
         if (!(rmiName.equals(RMINameCars) || rmiName.equals(RMINameCustomers) ||
@@ -177,8 +178,8 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
         try {
             tm = (TransactionManager) Naming.lookup(rmiPort + TransactionManager.RMIName);
             System.out.println(myRMIName + "'s xids is Empty ? " + xids.isEmpty());
-            for (Iterator iter = xids.iterator(); iter.hasNext(); ) {
-                int xid = ((Integer) iter.next()).intValue();
+            for (Object xid1 : xids) {
+                int xid = (Integer) xid1;
                 System.out.println(myRMIName + " Re-enlist to TM with xid" + xid);
                 tm.enlist(xid, this);
                 if (dieTime.equals("AfterEnlist"))
@@ -304,41 +305,11 @@ public class ResourceManagerImpl extends java.rmi.server.UnicastRemoteObject imp
     }
 
     protected HashSet loadTransactionLogs() {
-        File xidLog = new File("data/transactions.log");
-        ObjectInputStream oin = null;
-        try {
-            oin = new ObjectInputStream(new FileInputStream(xidLog));
-            return (HashSet) oin.readObject();
-        } catch (Exception e) {
-            return null;
-        } finally {
-            try {
-                if (oin != null)
-                    oin.close();
-            } catch (IOException e1) {
-            }
-        }
+        return (HashSet) Utils.loadObject(TRANSACTION_LOG_FILEPATH);
     }
 
     protected boolean storeTransactionLogs(HashSet xids) {
-        File xidLog = new File("data/transactions.log");
-        xidLog.getParentFile().mkdirs();
-        xidLog.getParentFile().mkdirs();
-        ObjectOutputStream oout = null;
-        try {
-            oout = new ObjectOutputStream(new FileOutputStream(xidLog));
-            oout.writeObject(xids);
-            oout.flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (oout != null)
-                    oout.close();
-            } catch (IOException e1) {
-            }
-        }
+        return Utils.storeObject(TRANSACTION_LOG_FILEPATH, xids);
     }
 
     public Collection query(int xid, String tablename) throws DeadlockException, InvalidTransactionException,
