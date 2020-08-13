@@ -1,6 +1,12 @@
 package transaction;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 /**
  * @Author Louhwz
@@ -20,6 +26,17 @@ public class Utils {
         else
             return "//:" + rmiPort + "/";
     }
+
+    public static String getHostIP() {
+        String hostname = "";
+        try {
+            hostname = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return hostname;
+    }
+
 
     /**
      * override write
@@ -69,4 +86,36 @@ public class Utils {
             }
         }
     }
+
+    public static WorkflowController bindWC(String rmiPort) {
+        WorkflowController wc = null;
+        rmiPort = Utils.genrConSyntax(rmiPort);
+        try {
+            wc = (WorkflowController) Naming.lookup(rmiPort + WorkflowController.RMIName);
+            System.out.println("Bound to WC");
+        } catch (Exception e) {
+            System.err.println("Cannot bind to WC:" + e);
+            System.exit(1);
+        }
+
+        return wc;
+    }
+
+    public static void ExitWC(WorkflowController wc, int status) {
+        try {
+            wc.dieNow("ALL");
+        } catch (Exception e) {
+        }
+        System.exit(status);
+    }
+
+    public static void Check(WorkflowController wc, int expect, int real) {
+        if (expect != real) {
+            System.out.println(expect + " " + real);
+            System.err.println("Test fail");
+            ExitWC(wc, 1);
+        }
+    }
+
 }
+

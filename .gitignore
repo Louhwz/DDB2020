@@ -1,3 +1,14 @@
+*.class
+
+# Log file
+*.log
+
+.idea/
+ddb.iml
+
+bin/
+/src/test/results/
+/src/test/data/
 # Intellij files
 .idea/
 bin/

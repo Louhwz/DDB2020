@@ -1,4 +1,4 @@
-RMIREGPORT =3345 
+RMIREGPORT =3345
 PROJECTROOT = ..
 PATH = /usr/bin
 all : server client
@@ -45,11 +45,11 @@ runmyclient: client
 	$(PATH)/java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) transaction.MyClient
 
 clean :
+#	$(RM) *.class
+#	$(RM) ./exception/*.class
+#	$(RM) ./models/*.class
 	/bin/rm -rf *.class
 	/bin/rm -rf */*.class
-	#	$(RM) *.class
-    #	$(RM) ./exception/*.class
-    #	$(RM) ./models/*.class
 
 %.class : %.java
 	$(PATH)/javac -classpath $(PROJECTROOT) $<

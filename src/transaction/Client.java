@@ -1,41 +1,32 @@
 package transaction;
 
-import java.io.FileInputStream;
+import java.net.Socket;
 import java.rmi.Naming;
-import java.util.Properties;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+import static transaction.Utils.bindWC;
 
 /**
- * A toy client of the Distributed Travel Reservation System.
+ * mengying zhou
+ * myzhou19@fudan.edu.cn
+ * 2020-7-30
  */
 
 public class Client {
+    public static void main(String[] args) {
+        WorkflowController wc = bindWC("3345");
 
-    public static void main(String args[]) {
-        Properties prop = new Properties();
-        try {
-            prop.load(new FileInputStream("conf/ddb.conf"));
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return;
-        }
-        String rmiPort = prop.getProperty("wc.port");
-        if (rmiPort == null) {
-            rmiPort = "";
-        } else if (!rmiPort.equals("")) {
-            rmiPort = "//:" + rmiPort + "/";
-        }
+        test_case1(wc);
 
-        WorkflowController wc = null;
-        try {
-            wc = (WorkflowController) Naming.lookup(rmiPort + WorkflowController.RMIName);
-            System.out.println("Bound to WC");
-        } catch (Exception e) {
-            System.err.println("Cannot bind to WC:" + e);
-            System.exit(1);
-        }
+    }
 
+    public static void test_case1(WorkflowController wc) {
         try {
             int xid = wc.start();
+            System.out.println("Flight 347 has " +
+                    wc.queryFlight(6, "347") +
+                    " seats.");
 
             if (!wc.addFlight(xid, "347", 230, 999)) {
                 System.err.println("Add flight failed");
@@ -62,6 +53,5 @@ public class Client {
             System.err.println("Received exception:" + e);
             System.exit(1);
         }
-
     }
 }

@@ -78,8 +78,6 @@ public class Car implements ResourceItem, Serializable {
     }
 
 
-
-
     @Override
     public String[] getColumnNames() {
         return new String[]{"location", "price", "numCars", "numAvail", "isDeleted"};
