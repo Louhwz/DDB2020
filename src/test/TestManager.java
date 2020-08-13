@@ -2,10 +2,17 @@ package test;
 
 import java.io.*;
 
+import static transaction.Utils.CleanResults;
+
+/**
+ * @Author myzhou
+ * @Date 2020/8/1
+ */
 public class TestManager {
 
     public static void main(String[] args) throws IOException {
         String testClass = System.getProperty("testClass");
+        CleanResults();
 
         // mkdir results folder
         File dataDir = new File("results/" + testClass);
@@ -13,6 +20,8 @@ public class TestManager {
             dataDir.mkdirs();
         }
 
+        // clean the previous data to make the workspace clean
+        CleanResults();
         // start the test with the corresponding parameter
         System.out.println("Launching test " + testClass);
         Process process = null;

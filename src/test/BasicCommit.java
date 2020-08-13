@@ -5,6 +5,10 @@ import transaction.WorkflowController;
 import static transaction.Utils.ExitWC;
 import static transaction.Utils.bindWC;
 
+/**
+ * @Author myzhou
+ * @Date 2020/8/1
+ */
 public class BasicCommit {
 
     public static void main(String[] a) {
