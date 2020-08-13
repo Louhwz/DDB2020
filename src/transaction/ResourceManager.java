@@ -83,4 +83,7 @@ public interface ResourceManager extends Remote {
     String RMINameCars = "RMCars";
 
     String RMINameCustomers = "RMCustomers";
+
+    // Reservation table name
+    public static final String TableNameReservations = "RMReservations";
 }

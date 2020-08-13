@@ -67,6 +67,18 @@ public class Car implements ResourceItem, Serializable {
         this.numAvail -= num;
     }
 
+    public boolean reduceCars(int reduceCars) {
+        if (reduceCars > this.numAvail) {
+            return false;
+        }
+
+        this.numCars -= reduceCars;
+        this.numAvail -= reduceCars;
+        return true;
+    }
+
+
+
 
     @Override
     public String[] getColumnNames() {

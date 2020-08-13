@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ddb.iml" filepath="$PROJECT_DIR$/ddb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DDB2020.iml" filepath="$PROJECT_DIR$/DDB2020.iml" />
     </modules>
   </component>
 </project>

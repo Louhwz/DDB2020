@@ -17,7 +17,7 @@ public class Hotel implements ResourceItem, Serializable {
     private int numAvail;
     private boolean isDeleted;
 
-    private Hotel(String location, int price, int numRooms, int numAvail) {
+    public Hotel(String location, int price, int numRooms, int numAvail) {
         this.location = location;
         this.price = price;
         this.numRooms = numRooms;
