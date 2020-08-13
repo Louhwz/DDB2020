@@ -264,7 +264,6 @@ public class WorkflowControllerImpl
                 return false;
             }
 
-            resourceItem.delete();
             return this.rmFlights.delete(xid, this.rmFlights.getID(), flightNum);
         }catch(DeadlockException e){
             this.abort(xid);
