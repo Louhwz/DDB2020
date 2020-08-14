@@ -1,10 +1,18 @@
-- [1. 测试设计](#1-测试设计)
-  - [1.1. 组件启动 (无测试)](#11-组件启动-无测试)
-  - [1.2. 组件启动功能测试 Basic*.java](#12-组件启动功能测试-basicjava)
-  - [1.3.](#13)
-  - [1.4. 2 基本业务逻辑测试](#14-2-基本业务逻辑测试)
-  - [1.5. 3 并发测试，锁功能测试](#15-3-并发测试锁功能测试)
-  - [1.6. 4 宕机测试](#16-4-宕机测试)
+- [1. 组件启动 (无测试)](#1-组件启动-无测试)
+- [2. 组件启动功能测试 Basic*.java](#2-组件启动功能测试-basicjava)
+  - [2.1. 正常运行测试](#21-正常运行测试)
+  - [2.2. 异常测试](#22-异常测试)
+- [3. 基本业务逻辑测试](#3-基本业务逻辑测试)
+  - [3.1. 正常运行测试](#31-正常运行测试)
+  - [3.2. 异常测试](#32-异常测试)
+- [4. ACID性质测试](#4-acid性质测试)
+  - [4.1. TM 宕机](#41-tm-宕机)
+  - [4.2. RM 宕机](#42-rm-宕机)
+  - [4.3. WC 宕机](#43-wc-宕机)
+- [5. 并行锁测试](#5-并行锁测试)
+  - [5.1. 2 基本业务逻辑测试](#51-2-基本业务逻辑测试)
+  - [5.2. 3 并发测试，锁功能测试](#52-3-并发测试锁功能测试)
+  - [5.3. 4 宕机测试](#53-4-宕机测试)
 
 
 # 1. 组件启动 (无测试)
@@ -24,7 +32,7 @@
   - 绑定WC后，使用错误的Xid进行commit，捕捉异常
 
 
-# 3. 基本业务逻辑测试
+# 3. 基本业务逻辑测试 CRUD*.java
 主要为CRUD（create增, read读, update改, delete删）业务的独立以及组合测试。数据操作对象为Flight, Room, Car 以及 Customer。可以添加修改删除Flight, Room, Car, Customer。用户可以预订或者取消预订Flight, Room, Car。具体包括以下测试用例：
 ## 3.1. 正常运行测试
 - [x] CRUDCreate.java
@@ -85,7 +93,105 @@
 
 
 
-## 3.3. 2 基本业务逻辑测试
+# 4. ACID性质测试 ACID*.java
+ACID这四个性质的目的就是为了保证系统能在异常的出现的情况下，系统能在这些规则条件下保持数据的稳定
+## 4.1. TM 宕机
+- ACIDDieTMBeforeCommit.java
+  - 测试 Atomicity
+  - **分为3个阶段**
+  - 增加Flight
+  - 测试提交，但在commit之前，TM宕机
+  - 重新启动TM，并检查数据：Commit 无效，事务失败
+
+- dieTMAfterCommit.java
+  - 测试 Atomicity & Durability
+  - **分为3个阶段**
+  - 增加Flight
+  - 测试提交，但在commit之后，TM宕机
+  - 重新启动TM，并检查数据：已成功发送prepared 消息至TM，事务成功
+
+- ACIDDieTM.java
+  - 测试 Atomicity
+  - **分为3个阶段**
+  - 增加Flight
+  - TM宕机
+  - 重新启动TM，并检查数据：Flight 事务失败
+
+
+
+## 4.2. RM 宕机
+- ACIDDieRM.java
+  - 测试 Atomicity & Consistency
+  - **分为4个阶段**
+  - 增加Flight1 并commit成功
+  - 增加Flight2 但同时 RMFlights 宕机
+  - 重启RMFlights，并提交commit
+  - 读取数据并进行检查：flight1 成功，flight2 失败
+
+- ACIDDieRMAfterEnlist.java
+  - 测试 Atomicity & Consistency
+  - **分为4个阶段**
+  - 增加Flight 和 Customer，并commit成功
+  - customer 预订 flight，但在 enlist 之后 RMFlights 宕机
+  - 重启RMFlights，并提交commit
+  - 读取数据并进行检查：reservate 失败
+
+- ACIDDieRMBeforePrepare.java
+  - 测试 Atomicity
+  - **分为4个阶段**
+  - 增加Flight
+  - 在 prepare 之前 RMFlights 宕机
+  - 重启RMFlights
+  - 读取数据并进行检查：Flight 事务失败
+
+- ACIDDieRMAfterPrepare.java
+  - 测试 Atomicity
+  - **分为4个阶段**
+  - 增加Flight
+  - 在 prepare 之后 RMFlights 宕机
+  - 重启RMFlights
+  - 读取数据并进行检查：未成功发送prepared 消息至TM, 事务失败
+
+- ACIDDieRMBeforeCommit.java
+  - 测试 Atomicity
+  - **分为4个阶段**
+  - 增加Flight
+  - 在 commit 之前 RMFlights 宕机
+  - 重启RMFlights
+  - 读取数据并进行检查：Flight失败
+
+- ACIDDieRMBeforeAbort.java
+  - 测试 Atomicity & Consistency
+  - **分为4个阶段**
+  - 增加Flight 和 Car
+  - 在 abort 之前 RMFlights 宕机
+  - 重启RMFlights
+  - 读取数据并进行检查：Flight abort失败，Car abort 成功
+
+
+## 4.3. WC 宕机
+- ACIDDieWC.java
+  - 测试 Atomicity & Consistency & Durability
+  - **分为4个阶段**
+  - 增加Flight 和 Customer，并 commit
+  - customer 预订 flight，随后 WC 宕机
+  - 重启 WC，并 commit
+  - 读取数据并进行检查：预订事务成功
+
+
+# 5. 并行锁测试
+- LockIsolation.java
+  - 测试 Isolation
+  - **分为4个阶段**
+  - 申请两个xid
+  - 用xid1 增加 flight1，用xid2 修改 flight1 的价格
+  - 在代码层面先commit xid2，再commit xid1
+  - 读取数据并进行检查：保留了xid1 的价格
+
+
+
+
+## 5.1. 2 基本业务逻辑测试
 增删改查极其组合业务，包含数据Flight, Room, Car, Customer。可以添加修改删除Flight, Room, Car, Customer。用户可以预订
 或者取消预订Flight, Room, Car。8-16 个测试用例。
 - 增加Flight, Room, Car, Customer。
@@ -96,7 +202,7 @@
 - 用户取消预订Flight, Room, Car。
 - 输入异常
     - 异常key，数据
-## 3.4. 3 并发测试，锁功能测试
+## 5.2. 3 并发测试，锁功能测试
 当并发执行以上事务逻辑，能够正确执行。基于两阶段锁测试。随机选择基本事务。5-10个测试用例
 - 读读共享: T_L_RR
 - 读写等待: T_L_RW
@@ -107,7 +213,7 @@
     - 2数据，读写读写死锁: T_L_RWRW
     - 2数据，写读写读死锁: T_L_WRWR
     - 2数据，写写写写死锁: T_L_WWWW
-## 3.5. 4 宕机测试
+## 5.3. 4 宕机测试
 基于两阶段提交进行测试。随机选择基本事务。基于现有WC接口。 7-14个测试用例。
 - TM 宕机
     - 两阶段提交前宕机，事务失败. T_TM_DIE
