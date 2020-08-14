@@ -87,6 +87,18 @@ public class Utils {
         }
     }
 
+    public static void Register(String component) {
+        try {
+            Runtime.getRuntime().exec(new String[]{
+                    "sh",
+                    "-c",
+                    "run " + component + " &"});
+        } catch (Exception e) {
+            System.err.println("Cannot launch " + component + ": " + e);
+            System.exit(1);
+        }
+    }
+
     public static void CleanResults() {
         try {
             if (Runtime.getRuntime().exec("rm -rf data").waitFor() != 0) {
