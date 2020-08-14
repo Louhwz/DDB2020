@@ -10,7 +10,7 @@ import static transaction.Utils.*;
  * @Author myzhou
  * @Date 2020/8/14
  */
-public class LockIsolation {
+public class LockWW {
     public static void main(String[] a) {
         WorkflowController wc = bindWC("3345");
 
