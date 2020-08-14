@@ -179,52 +179,65 @@ ACID这四个性质的目的就是为了保证系统能在异常的出现的情�
   - 读取数据并进行检查：预订事务成功
 
 
-# 5. 并行锁测试
-- LockIsolation.java
-  - 测试 Isolation
+# 5. 并行锁测试 Lock*.java
+## 5.1. 正常运行测试
+- LockRR.java
+  - 测试 Durability
+  - 读读共享
+  - **分为4个阶段**
+  - 增加Flight 并 commit
+  - 申请两个xid
+  - 用xid1 查询 flight1 的数量，用xid2 查询 flight1 的价格
+  - 在代码层面先commit xid2，再commit xid1
+
+- LockRW.java
+  - 测试 Isolation & Durability
+  - 读写等待，写wait读
+  - **分为5个阶段**
+  - 增加Flight 并 commit
+  - 申请两个xid
+  - 用xid1 查询 flight1 的数量，用xid2 增加另一台 flight2
+  - 在代码层面先commit xid2，再commit xid1
+  - 读取数据并进行检查
+
+- LockWR.java
+  - 测试 Isolation & Durability
+  - 写读共享，读wait写
+  - **分为5个阶段**
+  - 增加Flight 并 commit
+  - 申请两个xid
+  - 用xid1 增加另一台 flight2，用xid2 查询 flight1 的数量
+  - 在代码层面先commit xid2，再commit xid1
+  - 读取数据并进行检查
+
+- LockWW.java
+  - 测试 Isolation & Durability
   - **分为4个阶段**
   - 申请两个xid
   - 用xid1 增加 flight1，用xid2 修改 flight1 的价格
   - 在代码层面先commit xid2，再commit xid1
   - 读取数据并进行检查：保留了xid1 的价格
 
+## 5.2. 死锁测试
+例子来自这两个: https://blog.csdn.net/fd2025/article/details/80597426
+- LockDead2.java
+  - **分为5个阶段**
+  - 增加Flight 和 room 并 commit
+  - 申请两个xid
+  - 用 xid1 查询 flight1 的数量，用xid2 查询 room1 的价格
+  - 用 xid1 增加 room2，用xid2 增加 flight2
+    - 出现死锁
+    - 死锁现象：xid1 检测到死锁，xid1 抛出异常
+    - 死锁理由：一个用户A 访问表A(锁住了表A),然后又访问表B；另一个用户B 访问表B(锁住了表B)，然后企图访问表A；这时用户A由于用户B已经锁住表B，它必须等待用户B释放表B才能继续，同样用户B要等用户A释放表A才能继续，这就死锁就产生了。
+  - 读取数据并进行检查
 
-
-
-## 5.1. 2 基本业务逻辑测试
-增删改查极其组合业务，包含数据Flight, Room, Car, Customer。可以添加修改删除Flight, Room, Car, Customer。用户可以预订
-或者取消预订Flight, Room, Car。8-16 个测试用例。
-- 增加Flight, Room, Car, Customer。
-- 删除Flight, Room, Car, Customer。
-- 查看Flight, Room, Car, Customer。
-- 修改Flight, Room, Car。
-- 用户预订Flight, Room, Car。
-- 用户取消预订Flight, Room, Car。
-- 输入异常
-    - 异常key，数据
-## 5.2. 3 并发测试，锁功能测试
-当并发执行以上事务逻辑，能够正确执行。基于两阶段锁测试。随机选择基本事务。5-10个测试用例
-- 读读共享: T_L_RR
-- 读写等待: T_L_RW
-- 写读等待: T_L_WR
-- 写写等待: T_L_WW
-- 死锁，后者放弃事务
-    - 读读写写死锁: T_L_RRWW
-    - 2数据，读写读写死锁: T_L_RWRW
-    - 2数据，写读写读死锁: T_L_WRWR
-    - 2数据，写写写写死锁: T_L_WWWW
-## 5.3. 4 宕机测试
-基于两阶段提交进行测试。随机选择基本事务。基于现有WC接口。 7-14个测试用例。
-- TM 宕机
-    - 两阶段提交前宕机，事务失败. T_TM_DIE
-    - 开启事务后直到写COMMIT log前宕机（After INITED），事务失败
-        - PREPARE 之前，PREPARE 之后. T_TM_DBC
-    - 写COMMIT log之后宕机，事务成功. T_TM_DAC
-    - 事务ABORT的时候宕机，同写COMMIT log前，事务失败. no condition
-- RM 宕机，多个RM，随机选择宕机
-    - 与当前事务无关。事务成功 D_RM_DIE
-    - 与当前事务有关
-        - PREPARE 前宕机（已被TM通知过PREPARE），事务失败 D_RM_DBP
-        - PREPARED 后宕机，（未成功发送prepared 消息至TM, 事务失败 D_RM_DAP
-        - COMMIT log 前宕机过程中宕机（已成功发送prepared 消息至TM），事务成功 D_RM_DBC
-        - COMMIT log 后宕机，事务成功 no condition.
+- LockDead2.java
+  - **分为5个阶段**
+  - 增加Flight 并 commit
+  - 申请两个xid
+  - 用 xid1 查询 flight1 的数量，用xid2 查询 flight1 的价格
+  - 用 xid1 增加 flight2，用xid2 也增加 flight2
+    - 出现死锁
+    - 死锁现象：xid2 检测到死锁，xid2 抛出异常
+    - 死锁理由：用户A查询一条纪录，然后修改该条纪录；这时用户B修改该条纪录，这时用户A的事务里锁的性质由查询的共享锁企图上升到独占锁，而用户B里的独占锁由于A有共享锁存在所以必须等A释放掉共享锁，而A由于B的独占锁而无法上升的独占锁也就不可能释放共享锁，于是出现了死锁。
+  - 读取数据并进行检查
