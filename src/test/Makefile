@@ -43,7 +43,6 @@ test :
 #Lock Test:
 	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockDead test.TestManager
 	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockDead2 test.TestManager
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockIsolation test.TestManager
 	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockRR test.TestManager
 	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockRW test.TestManager
 	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockWW test.TestManager
