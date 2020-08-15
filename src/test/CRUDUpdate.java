@@ -19,7 +19,7 @@ public class CRUDUpdate {
             if (!wc.addFlight(xid, "flight1", 100, 499)) {
                 System.err.println("Add flight failed");
             }
-            if (!wc.addRooms(xid, "room1", 99, 399)) {
+            if (!wc.addRooms(xid, "room1", 99, 299)) {
                 System.err.println("Add room failed");
             }
             if (!wc.addCars(xid, "car1", 89, 299000)) {
@@ -32,10 +32,10 @@ public class CRUDUpdate {
             if (!wc.reserveFlight(xid, "customer1", "flight1")) {
                 System.err.println("Reserve flight failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "room1")) {
+            if (!wc.reserveRoom(xid, "customer1", "room1")) {
                 System.err.println("Reserve room failed");
             }
-            if (!wc.reserveFlight(xid, "customer1", "car1")) {
+            if (!wc.reserveCar(xid, "customer1", "car1")) {
                 System.err.println("Reserve car failed");
             }
 
@@ -45,15 +45,15 @@ public class CRUDUpdate {
 
             xid = wc.start();
             int r1 = wc.queryFlight(xid, "flight1");
-            Check(wc, 100, r1);
+            Check(wc, 100 - 1, r1);
             int r2 = wc.queryFlightPrice(xid, "flight1");
             Check(wc, 499, r2);
             int r3 = wc.queryRooms(xid, "room1");
-            Check(wc, 99, r3);
+            Check(wc, 99-1, r3);
             int r4 = wc.queryRoomsPrice(xid, "room1");
             Check(wc, 299, r4);
             int r5 = wc.queryCars(xid, "car1");
-            Check(wc, 89, r5);
+            Check(wc, 89-1, r5);
             int r6 = wc.queryCarsPrice(xid, "car1");
             Check(wc, 299000, r6);
             int r7 = wc.queryCustomerBill(xid, "customer1");
@@ -83,15 +83,15 @@ public class CRUDUpdate {
             }
             xid = wc.start();
             r1 = wc.queryFlight(xid, "flight1");
-            Check(wc, 200, r1);
+            Check(wc, 200 - 2, r1);
             r2 = wc.queryFlightPrice(xid, "flight1");
             Check(wc, 699, r2);
             r3 = wc.queryRooms(xid, "room1");
-            Check(wc, 99 + 199, r3);
+            Check(wc, 99 + 199 - 2, r3);
             r4 = wc.queryRoomsPrice(xid, "room1");
             Check(wc, 599, r4);
             r5 = wc.queryCars(xid, "car1");
-            Check(wc, 89 + 99, r5);
+            Check(wc, 89 + 99 - 2, r5);
             r6 = wc.queryCarsPrice(xid, "car1");
             Check(wc, 499000, r6);
             r7 = wc.queryCustomerBill(xid, "customer1");

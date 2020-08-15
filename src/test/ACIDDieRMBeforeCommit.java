@@ -2,6 +2,7 @@ package test;
 
 import transaction.WorkflowController;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
 
 /**
@@ -30,7 +31,7 @@ public class ACIDDieRMBeforeCommit {
             }
 
             // phase 3
-            Register("runrmflights");
+            Register("RMFlights");
             wc.reconnect();
 
             // phase 4
@@ -45,7 +46,7 @@ public class ACIDDieRMBeforeCommit {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

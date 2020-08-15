@@ -65,11 +65,11 @@ public class CRUDDeleteFailParam {
             int r2 = wc.queryFlightPrice(xid, "flight1");
             Check(wc, 499, r2);
             int r3 = wc.queryRooms(xid, "room1");
-            Check(wc, 89, r3);
+            Check(wc, 99, r3);
             int r4 = wc.queryRoomsPrice(xid, "room1");
             Check(wc, 399, r4);
             int r5 = wc.queryCars(xid, "car1");
-            Check(wc, 79, r5);
+            Check(wc, 89, r5);
             int r6 = wc.queryCarsPrice(xid, "car1");
             Check(wc, 299000, r6);
             if (!wc.commit(xid)) {

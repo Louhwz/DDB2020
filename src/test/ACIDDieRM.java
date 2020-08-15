@@ -1,8 +1,11 @@
 package test;
 
 import transaction.WorkflowController;
+import transaction.exception.TransactionAbortedException;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
+
 
 /**
  * @Author myzhou
@@ -29,22 +32,27 @@ public class ACIDDieRM {
                     System.err.println("Add flight failed");
                 }
             } catch (Exception e) {
-                // e.printStackTrace();
+                throw e;
             }
             wc.dieNow("RMFlights");
 
             // phase 3
-            Register("runrmflights");
+            Register("RMFlights");
+
             wc.reconnect();
-            if (!wc.commit(xid)) {
-                System.err.println("Commit failed");
+            System.out.println("Reconnected!");
+            try{
+                wc.commit(xid);
+            }catch (TransactionAbortedException e){
+                System.out.println("Catch TransactionAbortedException as expected!");
             }
 
             // phase 4
             xid = wc.start();
             int r1 = wc.queryFlight(xid, "flight1");
             Check(wc, 100, r1);
-            int r2 = wc.queryFlight(xid, "flight2");
+            System.out.println("In xid" + xid);
+            int r2  = wc.queryFlight(xid, "flight2");
             Check(wc, -1, r2);
             if (!wc.commit(xid)) {
                 System.err.println("Commit failed");
@@ -53,8 +61,9 @@ public class ACIDDieRM {
             System.out.println("Test pass.");
             ExitWC(wc, 0);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

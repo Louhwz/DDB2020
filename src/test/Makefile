@@ -10,53 +10,44 @@ all :
 	javac -classpath $(PROJECTROOT) *.java
 
 test :
-#Basic Test:
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Start test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=StartCommit test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=StartAbort test.RunTest
+##Basic Test:
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=BasicXid test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=BasicBind test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=BasicCommit test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=BasicAbort test.TestManager
+#
+##CRUD Test:
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDCreate test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDRead test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDCreateFailInvalidItem test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDCreateFailParam test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDDelete test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDDeleteFailParam test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDDeleteFailSeq test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=CRUDUpdate test.TestManager
+#Die Test
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRM test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRMAfterEnlist test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRMBeforePrepare test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRMAfterPrepare test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRMBeforeAbort test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieRMBeforeCommit test.TestManager
 
-#ACID Test:
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Atomicity test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Consistency test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Isolation test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Durability test.RunTest
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieTM test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieTMBeforeCommit test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieTMAfterCommit test.TestManager
 
-#Function Test
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DataAdd test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DataAddCommit test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DataAddAbort test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DataAddCommitReserve test.RunTest
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=ACIDDieWC test.TestManager
 
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=AddDelete test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=AddCommitDeleteCommit test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=QueryforDataAddCommit test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=QueryforDataAddAbort test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=AddChange test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=QueryforBill test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=QueryforAdd test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=BadXid test.RunTest
-
-#Die Test:	
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRM test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRMAfterEnlist test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRMAfterPrepare test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRMBeforeAbort test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRMBeforeCommit test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieRMBeforePrepare test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieTM test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieTMBeforeCommit test.RunTest
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieTMAfterCommit test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieWC test.RunTest
-
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=DieAll test.RunTest
-
+#
 #Lock Test:
-	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestName=Lconc test.RunTest
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockDead test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockDead2 test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockIsolation test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockRR test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockRW test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockWW test.TestManager
+	java -classpath $(PROJECTROOT) -DrmiPort=$(RMIREGPORT) -DtestClass=LockWR test.TestManager
 
 
 

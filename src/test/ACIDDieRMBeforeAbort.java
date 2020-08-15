@@ -2,6 +2,7 @@ package test;
 
 import transaction.WorkflowController;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
 
 /**
@@ -31,13 +32,13 @@ public class ACIDDieRMBeforeAbort {
             }
 
             // phase 3
-            Register("runrmflights");
+            Register("RMFlights");
             wc.reconnect();
 
             // phase 4
             xid = wc.start();
             int r1 = wc.queryFlight(xid, "flight1");
-            Check(wc, 100, r1);
+            Check(wc, -1, r1);
             int r3 = wc.queryRooms(xid, "room1");
             Check(wc, -1, r3);
             if (!wc.commit(xid)) {
@@ -48,7 +49,7 @@ public class ACIDDieRMBeforeAbort {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

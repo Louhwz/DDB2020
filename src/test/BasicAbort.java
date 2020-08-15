@@ -21,7 +21,7 @@ public class BasicAbort {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

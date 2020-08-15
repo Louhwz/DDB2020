@@ -4,6 +4,7 @@ import transaction.WorkflowController;
 
 import java.rmi.RemoteException;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
 
 /**
@@ -39,10 +40,12 @@ public class ACIDDieRMAfterEnlist {
             }
 
             // phase 3
-            Register("runrmflights");
+            Register("RMFlights");
             wc.reconnect();
-            if (!wc.commit(xid)) {
-                System.err.println("Commit failed");
+            try {
+                wc.commit(xid);
+            } catch (Exception e) {
+                // e.printStackTrace();
             }
 
             // phase 4
@@ -59,7 +62,7 @@ public class ACIDDieRMAfterEnlist {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

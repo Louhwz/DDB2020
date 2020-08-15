@@ -2,11 +2,8 @@ package transaction;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 /**
  * @Author Louhwz and myzhou
@@ -87,17 +84,25 @@ public class Utils {
         }
     }
 
-    public static void Register(String component) {
-        try {
-            Runtime.getRuntime().exec(new String[]{
-                    "sh",
-                    "-c",
-                    "run " + component + " &"});
-        } catch (Exception e) {
-            System.err.println("Cannot launch " + component + ": " + e);
-            System.exit(1);
-        }
-    }
+//    public static void Register(String component) {
+//        try {
+//            Runtime.getRuntime().exec(new String[]{
+//                    "sh",
+//                    "-c",
+//                    "make " + component + " &"});
+//        } catch (Exception e) {
+//            System.err.println("Cannot launch " + component + ": " + e);
+//            System.exit(1);
+//        }
+//        System.out.println(component + " launched");
+//
+//        try {
+//            Thread.sleep(4000);
+//        } catch (InterruptedException e) {
+//            System.err.println("Sleep interrupted.");
+//            System.exit(1);
+//        }
+//    }
 
     public static void CleanResults() {
         try {
@@ -132,6 +137,11 @@ public class Utils {
             wc.dieNow("ALL");
         } catch (Exception e) {
         }
+        try{
+            Thread.sleep(2000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         System.exit(status);
     }
 
@@ -144,4 +154,5 @@ public class Utils {
     }
 
 }
+
 

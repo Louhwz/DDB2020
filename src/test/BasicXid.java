@@ -11,7 +11,6 @@ import static transaction.Utils.*;
  */
 public class BasicXid {
     public static void main(String[] a) {
-        CleanResults();
         WorkflowController wc = bindWC("3345");
 
         try {
@@ -28,7 +27,7 @@ public class BasicXid {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
 
     }

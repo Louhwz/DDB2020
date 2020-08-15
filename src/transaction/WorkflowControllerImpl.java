@@ -13,6 +13,9 @@ import java.rmi.server.ExportException;
 import java.util.Collection;
 import java.util.HashSet;
 
+import static transaction.Utils.TM_DIE_AFTER_COMMIT;
+import static transaction.Utils.TM_DIE_BEFORE_COMMIT;
+
 /**
  * Workflow Controller for the Distributed Travel Reservation System.
  * <p>
@@ -996,13 +999,13 @@ public class WorkflowControllerImpl
 
     public boolean dieTMBeforeCommit()
             throws RemoteException {
-        tm.setDieTime("BeforeCommit");
+        tm.setDieTime(TM_DIE_BEFORE_COMMIT);
         return true;
     }
 
     public boolean dieTMAfterCommit()
             throws RemoteException {
-        tm.setDieTime("AfterCommit");
+        tm.setDieTime(TM_DIE_AFTER_COMMIT);
         return true;
     }
 

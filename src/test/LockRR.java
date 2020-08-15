@@ -30,7 +30,7 @@ public class LockRR {
             int r1 = wc.queryFlight(xid1, "flight1");
             Check(wc,100, r1);
             int r2 = wc.queryFlightPrice(xid2, "flight1");
-            Check(wc,399, r2);
+            Check(wc,499, r2);
 
             // phase 4
             wc.commit(xid2);
@@ -40,7 +40,7 @@ public class LockRR {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

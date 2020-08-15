@@ -2,8 +2,6 @@ package test;
 
 import transaction.WorkflowController;
 
-import java.rmi.RemoteException;
-
 import static transaction.Utils.*;
 
 /**
@@ -23,24 +21,28 @@ public class LockWW {
             if (!wc.addFlight(xid1, "flight1", 100, 499)) {
                 System.err.println("Add flight failed");
             }
-            if (!wc.addFlight(xid2, "flight1", 99, 399)) {
-                System.err.println("Add flight failed");
+            try{
+                if (!wc.addFlight(xid2, "flight1", 99, 399)) {
+                    System.err.println("Add flight failed");
+                }
+            }catch (Exception e){
+                System.out.println("Test pass.");
+                ExitWC(wc, 0);
             }
+            wc.commit(xid1);
 
             // phase 3
             wc.commit(xid2);
-            wc.commit(xid1);
 
             // phase 4
             int xid3 = wc.start();
             int r1 = wc.queryFlightPrice(xid3, "flight1");
             Check(wc,399, r1);
 
-            System.out.println("Test pass.");
-            ExitWC(wc, 0);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

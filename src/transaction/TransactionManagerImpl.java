@@ -54,7 +54,7 @@ public class TransactionManagerImpl
             this.xidNum = (Integer) cacheXidNum;
         }
 
-        Object cacheXidStatus = Utils.loadObject(TM_XID_NUM_PATH);
+        Object cacheXidStatus = Utils.loadObject(TM_XID_STATUS_PATH);
         if (cacheXidStatus != null) {
             this.xidStatus = (HashMap<Integer, String>) cacheXidStatus;
         }
@@ -79,14 +79,15 @@ public class TransactionManagerImpl
             // rm die before get transaction status, so ask again
             if (xidStatus.get(xid).equals(TransactionManager.COMMITTED)) {
                 synchronized (xidRMs) {
-                    abortSingleRM(xid, rm);
-                    return;
+                    commitSingleRM(xid, rm);
                 }
+
             }
 
             if (xidStatus.get(xid).equals(TransactionManager.ABORTED)) {
                 synchronized (xidRMs) {
-                    commitSingleRM(xid, rm);
+                    abortSingleRM(xid, rm);
+                    return;
                 }
             }
 
@@ -133,11 +134,9 @@ public class TransactionManagerImpl
             }
         } catch (Exception e) {
             this.abort(xid);
-            System.out.println("TM commit failed in prepare!" + e);
             e.printStackTrace();
-            throw e;
+            throw new TransactionAbortedException(xid, "commit failed in prepare");
         }
-
         this.updateXidStatus(xid, TransactionManager.PREPARED, ACTION.ADD);
 
         if (dieTime.equals(Utils.TM_DIE_BEFORE_COMMIT)) {
@@ -203,7 +202,7 @@ public class TransactionManagerImpl
     public int start() throws RemoteException {
         synchronized (xidNum) {
             Integer curXid = xidNum++;
-            Utils.storeObject(TM_XID_NUM_PATH, curXid);
+            Utils.storeObject(TM_XID_NUM_PATH, xidNum);
 
             synchronized (xidStatus) {
                 xidStatus.put(curXid, TransactionManager.INITED);
@@ -302,7 +301,6 @@ public class TransactionManagerImpl
         try {
             TransactionManagerImpl tmi = new TransactionManagerImpl();
             Naming.rebind(rmiPort + TransactionManager.RMIName, tmi);
-            System.out.println("TM bound!");
         } catch (Exception e) {
             System.err.println("TM not bound:" + e);
             System.exit(1);

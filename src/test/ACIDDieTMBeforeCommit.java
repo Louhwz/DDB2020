@@ -4,8 +4,8 @@ import transaction.WorkflowController;
 
 import java.rmi.RemoteException;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
-import static transaction.Utils.ExitWC;
 
 /**
  * @Author myzhou
@@ -32,8 +32,8 @@ public class ACIDDieTMBeforeCommit {
             }
 
             // phase 3
-            Register("runtm");
-            wc =  bindWC("3345");
+            Register("TM");
+            wc.reconnect();
             xid = wc.start();
             int r1 = wc.queryFlight(xid, "flight1");
             Check(wc,-1, r1);
@@ -42,7 +42,7 @@ public class ACIDDieTMBeforeCommit {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }

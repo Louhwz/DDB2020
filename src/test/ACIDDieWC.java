@@ -2,6 +2,7 @@ package test;
 
 import transaction.WorkflowController;
 
+import static test.TestManager.Register;
 import static transaction.Utils.*;
 
 /**
@@ -37,7 +38,7 @@ public class ACIDDieWC {
             }
 
             // phase 3
-            Register("runwc");
+            Register("WC");
             wc =  bindWC("3345");
             if (!wc.commit(xid)) {
                 System.err.println("Commit failed");
@@ -57,7 +58,7 @@ public class ACIDDieWC {
             ExitWC(wc, 0);
         } catch (Exception e) {
             System.out.println("Test fail:" + e.getMessage());
-            ExitWC(wc, 0);
+            ExitWC(wc, 1);
         }
     }
 }
