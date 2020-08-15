@@ -16,6 +16,7 @@ import java.util.HashSet;
 import static transaction.Utils.TM_DIE_AFTER_COMMIT;
 import static transaction.Utils.TM_DIE_BEFORE_COMMIT;
 
+
 /**
  * Workflow Controller for the Distributed Travel Reservation System.
  * <p>
@@ -28,18 +29,15 @@ public class WorkflowControllerImpl
         extends java.rmi.server.UnicastRemoteObject
         implements WorkflowController {
 
-    protected int flightCounter, flightPrice, carsCounter, carsPrice, roomsCounter, roomsPrice;
-    protected int xidCounter;
-
     protected ResourceManager rmFlights = null;
     protected ResourceManager rmRooms = null;
     protected ResourceManager rmCars = null;
     protected ResourceManager rmCustomers = null;
     protected TransactionManager tm = null;
 
-    private HashSet<Integer> xids = new HashSet<>();
+    private HashSet<Integer> xids = null; // store the ongoing transaction ids
 
-    private String WC_XID_FILEPATH = "WC_xids.log";
+    private String WC_XID_FILEPATH = "data/WC_xids.log"; // store the ongoing transaction ids on the disk, for recover from die
 
     public static void main(String args[]) {
         System.setSecurityManager(new SecurityManager());
@@ -60,6 +58,7 @@ public class WorkflowControllerImpl
 
     public WorkflowControllerImpl() throws RemoteException {
 
+        // initialize the set of onging ids
         this.xids = new HashSet<>();
 
         // recover from the disk memory, recover the unfinished xids
@@ -77,49 +76,18 @@ public class WorkflowControllerImpl
 
 
     private void recover(){
-        // read the logs in disk memory
-        File xidLog = new File(WC_XID_FILEPATH);
+        // load unfinished xids from file
+        Object obj = Utils.loadObject(WC_XID_FILEPATH);
 
-        HashSet<Integer>  hashSet  = null;
-
-        ObjectInputStream ois = null;
-
-        try {
-            ois = new ObjectInputStream(new FileInputStream(xidLog));
-            hashSet = (HashSet<Integer>)ois.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (ois != null)
-                    ois.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (hashSet != null) {
-            this.xids = hashSet;
+        if (obj != null) {
+            this.xids = (HashSet<Integer>)obj;
         }
     }
 
 
     private void updateXIDFile(){
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new FileOutputStream(WC_XID_FILEPATH));
-            oos.writeObject(this.xids);
-        } catch(Exception e){
-            e.printStackTrace();
-        }finally {
-            try{
-                if(oos != null) {
-                    oos.close();
-                }
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
+        // store the xids to the file
+        Utils.storeObject(WC_XID_FILEPATH,this.xids);
 
     }
 
@@ -127,13 +95,13 @@ public class WorkflowControllerImpl
     // TRANSACTION INTERFACE
     public int start()
             throws RemoteException {
-        int xid = tm.start();
 
+        // TM will return a xid as the transaction id
+        int xid = tm.start();
         this.xids.add(xid);
 
-        //store xid in disk
+        //every change should be stored in file, in case sudden die out
         this.updateXIDFile();
-
 
         return xid;
     }
@@ -142,6 +110,7 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
+
         System.out.println("Committing");
 
         // if there doesn't exist this transaction, throw Invalid Transaction Exception
@@ -166,9 +135,22 @@ public class WorkflowControllerImpl
         if (!xids.contains(xid))
             throw new InvalidTransactionException(xid, "abort");
         tm.abort(xid);
+
+        // transaction is aborted thus finished ,should be removed
         xids.remove(xid);
         this.updateXIDFile();
     }
+
+
+    private void xidIsOngoing(int xid,String info)
+        throws InvalidTransactionException{
+        // if there doesn't exist this transaction, throw Invalid Transaction Exception
+        if (!this.xids.contains(xid)) {
+            throw new InvalidTransactionException(xid, "addFlight");
+        }
+    }
+
+
 
 
     // ADMINISTRATIVE INTERFACE
@@ -177,54 +159,38 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // if there doesn't exist this transaction, throw Invalid Transaction Exception
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "addFlight");
-        }
+        this.xidIsOngoing(xid,"addFlight");
 
         // check the flightNum and the numSeats valid
         if (flightNum == null || numSeats < 0) {
             return false;
         }
 
-//        price = price < 0 ? 0 : price;
 
-        // find if there already exists flightNum
-        ResourceItem resourceItem;
         try {
-            resourceItem = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
-        } catch (DeadlockException e) {
-            this.abort(xid);
-            throw new TransactionAbortedException(xid, e.getMessage());
-        }
+            // find if there already exists flightNum
+            ResourceItem resourceItem = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
 
-        // new flight, call RM to insert new flight
-        if (resourceItem == null) {
-            if(price < 0){
-                price = 0;
-            }
+            // new flight, call RM to insert new flight
+            if (resourceItem == null) {
+                // price is negative , change price to zero
+                if(price < 0){ price = 0; }
 
-            Flight flight = new Flight(flightNum, price, numSeats, numSeats);
-
-            try {
+                // add new flight
+                Flight flight = new Flight(flightNum, price, numSeats, numSeats);
                 return this.rmFlights.insert(xid, this.rmFlights.getID(), flight);
-            } catch (DeadlockException e) {
-                this.abort(xid);
-                throw new TransactionAbortedException(xid, e.getMessage());
+            }else{
+                // existing flight, add the seats and overwrite price
+                Flight flight = (Flight) resourceItem;
+                flight.addSeats(numSeats);
+
+                // if price is negative, no need to change the price
+                if (price >= 0){
+                    flight.setPrice(price);
+                }
+
+                return this.rmFlights.update(xid, this.rmFlights.getID(), flightNum, flight);
             }
-        }
-
-        // existing flight, add the seats and overwrite price
-        Flight flight = (Flight) resourceItem;
-        flight.addSeats(numSeats);
-
-        if (price >= 0){
-            flight.setPrice(price);
-        }
-
-        // update
-        try {
-            return this.rmFlights.update(xid, this.rmFlights.getID(), flightNum, flight);
         } catch (DeadlockException e) {
             this.abort(xid);
             throw new TransactionAbortedException(xid, e.getMessage());
@@ -236,46 +202,41 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        //check if the transaction exists
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "deleteFlight");
-        }
+
+        this.xidIsOngoing(xid,"deleteFlight");
 
         //check if the flightNum is valid
         if (flightNum == null) {
             return false;
         }
 
-        ResourceItem resourceItem = null;
         try {
-            resourceItem = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
-        } catch (DeadlockException e) {
-            this.abort(xid);
-            throw new TransactionAbortedException(xid, e.getMessage());
-        }
+            ResourceItem resourceItem = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
 
-        // the flight doesn't exist
-        if (resourceItem == null) {
-            return false;
-        }
+            // the flight doesn't exist
+            if (resourceItem == null) {
+                return false;
+            }
 
-        Collection reservations = null;
-        try {
             // find all the reservations related to the deleted flight
-            reservations = this.rmCustomers.query(xid, ResourceManager.TableNameReservations, Reservation.INDEX_RESERV_KEY, flightNum);
+            Collection reservations = this.rmCustomers.query(xid, ResourceManager.TableNameReservations, Reservation.INDEX_RESERV_KEY, flightNum);
+
+            // the flight has related reservation, cannot be deleted
             if (!reservations.isEmpty()) {
                 return false;
             }
 
             return this.rmFlights.delete(xid, this.rmFlights.getID(), flightNum);
-        }catch(DeadlockException e){
+
+        } catch (DeadlockException e) {
             this.abort(xid);
-            throw new TransactionAbortedException(xid,e.getMessage());
-        }catch(InvalidIndexException iie){
+            throw new TransactionAbortedException(xid, e.getMessage());
+        } catch(InvalidIndexException iie){
             iie.printStackTrace();
         }
 
         return false;
+
     }
 
     public boolean addRooms(int xid, String location, int numRooms, int price)
@@ -283,38 +244,33 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if transaction already exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "addRooms");
-        }
+        this.xidIsOngoing(xid,"addRooms");
 
         // check if the location and numRooms valid
         if (location == null || numRooms < 0) {
             return false;
         }
 
-        // check if the hotel already exist at the location
-        ResourceItem resourceItem;
+
         try {
-            resourceItem = this.rmRooms.query(xid, this.rmRooms.getID(), location);
+            // check if the hotel already exist at the location
+            ResourceItem resourceItem = this.rmRooms.query(xid, this.rmRooms.getID(), location);
 
             // new hotel
             if (resourceItem == null) {
                 Hotel hotel = new Hotel(location, price, numRooms, numRooms);
                 return this.rmRooms.insert(xid, this.rmRooms.getID(), hotel);
-            }else {
-
-                // existing hotel
-                Hotel hotel = (Hotel) resourceItem;
-                hotel.addRooms(numRooms);
-
-                if (price >= 0) {
-                    hotel.setPrice(price);
-                }
-
-                return this.rmRooms.update(xid, this.rmRooms.getID(), location, hotel);
             }
 
+            // existing hotel
+            Hotel hotel = (Hotel) resourceItem;
+            hotel.addRooms(numRooms);
+
+            if (price >= 0) {
+                hotel.setPrice(price);
+            }
+
+            return this.rmRooms.update(xid, this.rmRooms.getID(), location, hotel);
 
         } catch (DeadlockException e) {
             this.abort(xid);
@@ -328,10 +284,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "deleteRooms");
-        }
+        this.xidIsOngoing(xid,"deleteRooms");
 
         // check if the input is valid
         if (location == null || numRooms < 0) {
@@ -343,14 +296,15 @@ public class WorkflowControllerImpl
             // the hotel doesn't exist
             if (resourceItem == null) {
                 return false;
-            }else {
-                Hotel hotel = (Hotel) resourceItem;
-                if(!hotel.reduceRooms(numRooms)){
-                    return false;
-                }
-
-                return this.rmRooms.update(xid, this.rmRooms.getID(), location, hotel);
             }
+
+            Hotel hotel = (Hotel) resourceItem;
+            if(!hotel.reduceRooms(numRooms)){
+                return false;
+            }
+
+            return this.rmRooms.update(xid, this.rmRooms.getID(), location, hotel);
+
         } catch (DeadlockException e) {
             abort(xid);
             throw new TransactionAbortedException(xid, e.getMessage());
@@ -362,10 +316,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exists
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "addCars");
-        }
+        this.xidIsOngoing(xid,"addCars");
 
         // check if the input is valid
         if (location == null || numCars < 0) {
@@ -374,24 +325,26 @@ public class WorkflowControllerImpl
 
 
         try {
+
+            //find the car is existing or not
             ResourceItem resourceItem = this.rmCars.query(xid, this.rmCars.getID(), location);
 
+            //new car
             if (resourceItem == null) {
                 Car car = new Car(location, price, numCars, numCars);
 
                 return this.rmCars.insert(xid, this.rmCars.getID(), car);
-            }else{
-                Car car = (Car) resourceItem;
-                car.addCars(numCars);
-
-                if(price >= 0) {
-                    car.setPrice(price);
-                }
-
-                return this.rmCars.update(xid, this.rmCars.getID(), location, car);
-
             }
 
+            //existing car
+            Car car = (Car) resourceItem;
+            car.addCars(numCars);
+
+            if(price >= 0) {
+                car.setPrice(price);
+            }
+
+            return this.rmCars.update(xid, this.rmCars.getID(), location, car);
 
         } catch (DeadlockException e) {
             this.abort(xid);
@@ -406,10 +359,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "deleteCars");
-        }
+        this.xidIsOngoing(xid,"deleteCars");
 
         // check if the input is valid
         if (location == null || numCars < 0) {
@@ -419,11 +369,15 @@ public class WorkflowControllerImpl
         try {
             ResourceItem resourceItem = this.rmCars.query(xid, this.rmCars.getID(), location);
 
+            // the car doesn't exist
             if (resourceItem == null) {
                 return false;
             }
 
+            // existing car
             Car car = (Car) resourceItem;
+
+            // the deleted num is less than the available num
             if (!car.reduceCars(numCars)) {
                 return false;
             }
@@ -440,10 +394,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction already exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "newCustomer");
-        }
+        this.xidIsOngoing(xid,"newCustomer");
 
         //check if the input is valid
         if (custName == null) {
@@ -453,14 +404,14 @@ public class WorkflowControllerImpl
         try {
             ResourceItem resourceItem = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
 
+            // the customer already exists
             if (resourceItem != null) {
                 return true;
-            }else{
-                Customer customer = new Customer(custName);
-                return this.rmCustomers.insert(xid, this.rmCustomers.getID(), customer);
             }
 
-
+            // new customer
+            Customer customer = new Customer(custName);
+            return this.rmCustomers.insert(xid, this.rmCustomers.getID(), customer);
         } catch (DeadlockException e) {
             this.abort(xid);
             throw new TransactionAbortedException(xid, e.getMessage());
@@ -472,10 +423,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "deleteCustomer");
-        }
+        this.xidIsOngoing(xid,"deleteCustomer");
 
         // check if the input is valid
         if (custName == null) {
@@ -484,6 +432,8 @@ public class WorkflowControllerImpl
 
         try {
             ResourceItem resourceItem = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
+
+            // the customer doesn't exist
             if (resourceItem == null) {
                 return false;
             }
@@ -510,9 +460,11 @@ public class WorkflowControllerImpl
                     this.rmCars.update(xid, this.rmCars.getID(), resKey, car);
                 }
             }
+
             //delete the record in the reservation tables
             this.rmCustomers.delete(xid, ResourceManager.TableNameReservations, Reservation.INDEX_CUSTNAME, custName);
 
+            //delete the customer
             return this.rmCustomers.delete(xid, this.rmCustomers.getID(), custName);
         } catch (DeadlockException e) {
             this.abort(xid);
@@ -531,10 +483,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryFlight");
-        }
+        this.xidIsOngoing(xid,"queryFlight");
 
         // check the input valid
         if (flightNum == null) {
@@ -543,6 +492,8 @@ public class WorkflowControllerImpl
 
         try {
             ResourceItem resourceItem = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
+
+            // the flight doesn't exist
             if (resourceItem == null) {
                 return -1;
             }
@@ -559,10 +510,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryFlightPrice");
-        }
+        this.xidIsOngoing(xid,"queryFlightPrice");
 
         // check the input valid
         if (flightNum == null) {
@@ -587,10 +535,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryRooms");
-        }
+        this.xidIsOngoing(xid,"queryRooms");
 
         // check the input valid
         if (location == null) {
@@ -615,10 +560,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryRoomsPrice");
-        }
+        this.xidIsOngoing(xid,"queryRoomsPrice");
 
         // check the input valid
         if (location == null) {
@@ -642,10 +584,8 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryCars");
-        }
+
+        this.xidIsOngoing(xid,"queryCars");
 
         // check the input valid
         if (location == null) {
@@ -669,10 +609,7 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryCarsPrice");
-        }
+        this.xidIsOngoing(xid,"queryCarsPrice");
 
         // check the input valid
         if (location == null) {
@@ -697,10 +634,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "queryCarsPrice");
-        }
+        this.xidIsOngoing(xid,"queryCustomerBill");
 
         // check the input valid
         if (custName == null) {
@@ -708,9 +642,12 @@ public class WorkflowControllerImpl
         }
         try {
             ResourceItem resourceItem = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
+
+            // the customer doesn't exist
             if (resourceItem == null)
                 return -1;
 
+            // find all reservations related to the customer
             Collection<ResourceItem> results = null;
             results = rmCustomers.query(xid, ResourceManager.TableNameReservations, Reservation.INDEX_CUSTNAME, custName);
 
@@ -718,6 +655,7 @@ public class WorkflowControllerImpl
             if (results == null)
                 return 0;
 
+            // add all the reservation price
             int totalBill = 0;
             for (ResourceItem re : results) {
                 Reservation resv = (Reservation) re;
@@ -753,10 +691,7 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "reserveFlight");
-        }
+        this.xidIsOngoing(xid,"reserveFlight");
 
         // check the input valid
         if (custName == null || flightNum == null) {
@@ -764,22 +699,28 @@ public class WorkflowControllerImpl
         }
 
         try {
+            //make sure the customer exists
             ResourceItem resourceCustomer = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
             if (resourceCustomer == null) {
                 return false;
             }
+
+            //make sure the flight exists
             ResourceItem resourceItemFlight = this.rmFlights.query(xid, this.rmFlights.getID(), flightNum);
             if (resourceItemFlight == null) {
                 return false;
             }
 
+            // make sure the flight has enough available seat
             Flight flight = (Flight) resourceItemFlight;
             if (!flight.addResv(1)) {
                 return false;
             }
 
+            // update the flight
             this.rmFlights.update(xid, this.rmFlights.getID(), flightNum, flight);
 
+            // update reservations
             Reservation reservation = new Reservation(custName, Reservation.RESERVATION_TYPE_FLIGHT, flightNum);
             return this.rmCustomers.insert(xid, ResourceManager.TableNameReservations, reservation);
 
@@ -794,25 +735,26 @@ public class WorkflowControllerImpl
             TransactionAbortedException,
             InvalidTransactionException {
 
-        // check if the transaction exist
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "reserveCar");
-        }
+        this.xidIsOngoing(xid,"reserveCar");
 
         // check the input valid
         if (custName == null || location == null)
             return false;
 
         try {
+            //make sure the customer exists
             ResourceItem resourceCustomer = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
             if (resourceCustomer == null) {
                 return false;
             }
+
+            //make sure the car exists
             ResourceItem resourceItemCar = this.rmCars.query(xid, this.rmCars.getID(), location);
             if (resourceItemCar == null) {
                 return false;
             }
 
+            //is there enough cars
             Car car = (Car) resourceItemCar;
             if (!car.addResv(1)) {
                 return false;
@@ -832,31 +774,36 @@ public class WorkflowControllerImpl
             throws RemoteException,
             TransactionAbortedException,
             InvalidTransactionException {
-        if (!this.xids.contains(xid)) {
-            throw new InvalidTransactionException(xid, "reserveRoom");
-        }
+        this.xidIsOngoing(xid,"reserveRoom");
 
+        // check the input is valid
         if (custName == null || location == null) {
             return false;
         }
 
         try {
+            // make sure the customer exists
             ResourceItem resourceCustomer = this.rmCustomers.query(xid, this.rmCustomers.getID(), custName);
             if (resourceCustomer == null) {
                 return false;
             }
+
+            //make sure the hotel exists
             ResourceItem resourceItemRoom = this.rmRooms.query(xid, this.rmRooms.getID(), location);
             if (resourceItemRoom == null) {
                 return false;
             }
 
+            // the hotel has enough room or not
             Hotel hotel = (Hotel) resourceItemRoom;
             if (!hotel.addResv(1)) {
                 return false;
             }
 
+            // update the hotel
             this.rmRooms.update(xid, this.rmRooms.getID(), location, hotel);
 
+            //update reservations
             Reservation reservation = new Reservation(custName, Reservation.RESERVATION_TYPE_HOTEL, location);
             return this.rmCustomers.insert(xid, ResourceManager.TableNameReservations, reservation);
         } catch (DeadlockException e) {
@@ -957,6 +904,7 @@ public class WorkflowControllerImpl
     }
 
     private boolean dieRMAt(String who, String time) throws RemoteException {
+        // control when to let RM dies
         switch (who) {
             case ResourceManager.RMINameFlights: {
                 rmFlights.setDieTime(time);
