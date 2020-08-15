@@ -38,7 +38,6 @@
     - lockmgr: 已提供的实现好的锁管理器
     - test: Java编写实现的测试用例
         - data: 运行生成的数据文件夹
-        - TestFileObject.java: [TODO]
         - TestManager.java: 测试主程序
         - Makefile
         - 其它Java程序: 测试用例
